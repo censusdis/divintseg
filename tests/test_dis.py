@@ -1,3 +1,5 @@
+# Copyright (c) 2022 Darren Erik Vengroff
+
 import unittest
 
 import pandas as pd
@@ -11,6 +13,7 @@ from divintseg import (
 
 
 class DfTestCase(unittest.TestCase):
+    """Test diversity in a DataFrame"""
     def setUp(self) -> None:
         self.df = pd.DataFrame(
             [
@@ -24,6 +27,7 @@ class DfTestCase(unittest.TestCase):
         )
 
     def test_diversity_of_df(self):
+        """Test diversity of a dataframe."""
         s_diversity = diversity(self.df)
 
         self.assertAlmostEqual(2.0 / 3.0, s_diversity[0], places=10)
@@ -36,6 +40,7 @@ class DfTestCase(unittest.TestCase):
         )
 
     def test_diversity_of_sub_df(self):
+        """Test diversity of a subset of the columns of a dataframe."""
         s_diversity = diversity(self.df[['A', 'C']])
 
         self.assertAlmostEqual(0.5, s_diversity[0], places=10)
@@ -49,7 +54,11 @@ class DfTestCase(unittest.TestCase):
 
 
 class IterableTestCase(unittest.TestCase):
+    """
+    Test diversity in an iterable.
 
+    This is not a common case. Usually DataFrames are used.
+    """
     def setUp(self) -> None:
         # An array of population counts.
         self.a = [10, 20, 30, 40]
@@ -72,8 +81,10 @@ class IterableTestCase(unittest.TestCase):
 
 
 class IntegrationTestCase(unittest.TestCase):
+    """Test integtation computations."""
 
     def setUp(self) -> None:
+        """Set up before each test."""
         self.df = pd.DataFrame(
             [
                 # Regions of different size but equal
@@ -107,18 +118,21 @@ class IntegrationTestCase(unittest.TestCase):
         }
 
     def test_integration(self):
+        """Test integration."""
         df_int = integration(self.df, by="region")
 
         for region in df_int.index:
             self.assertAlmostEqual(self.integration[region], df_int.loc[region][0], places=10)
 
     def test_segregation(self):
+        """Test segregation."""
         df_seg = segregation(self.df, 'region')
 
         for region in df_seg.index:
             self.assertAlmostEqual(1.0 - self.integration[region], df_seg.loc[region][0], places=10)
 
     def test_di(self):
+        """Test diversity and integration API."""
         df_di = di(self.df, 'region')
 
         for region in df_di.index:
@@ -127,8 +141,10 @@ class IntegrationTestCase(unittest.TestCase):
 
 
 class IntegrationOverTestCase(unittest.TestCase):
+    """Test integration over an inne geography."""
 
     def setUp(self) -> None:
+        """Set up before each test."""
         self.df = pd.DataFrame(
             [
                 ['X', 'X1', 10, 10, 10],
@@ -171,12 +187,14 @@ class IntegrationOverTestCase(unittest.TestCase):
         }
 
     def test_integration_over(self):
+        """Test integration."""
         df_int = integration(self.df, by="region", over="subregion")
 
         for region in df_int.index:
             self.assertAlmostEqual(self.integration[region], df_int.loc[region][0], places=10)
 
     def test_di_over(self):
+        """Test diversity and integration API."""
         df_di = di(self.df, by='region', over='subregion')
 
         for region in df_di.index:
@@ -185,8 +203,10 @@ class IntegrationOverTestCase(unittest.TestCase):
 
 
 class IntegrationOverNonNumericTestCase(unittest.TestCase):
+    """Test with extra non-numeric columns for different geography levels."""
 
     def setUp(self) -> None:
+        """Set up before each test."""
         self.df = pd.DataFrame(
             [
                 ['X', 'X1', 'X101', 10, 10, 10],
@@ -240,12 +260,14 @@ class IntegrationOverNonNumericTestCase(unittest.TestCase):
         }
 
     def test_integration_region_over_subregion(self):
+        """Integration at the region over subregion level."""
         df_int = integration(self.df, by="region", over="subregion", drop_non_numeric=True)
 
         for region in df_int.index:
             self.assertAlmostEqual(self.integration_region_over_subregion[region], df_int.loc[region][0], places=10)
 
     def test_di_region_over_subregion(self):
+        """Diversity and integration at the region over subregion level."""
         df_di = di(self.df, by='region', over='subregion', drop_non_numeric=True)
 
         for region in df_di.index:
@@ -253,12 +275,14 @@ class IntegrationOverNonNumericTestCase(unittest.TestCase):
             self.assertAlmostEqual(self.regional_diversity[region], df_di.loc[region]['diversity'], places=10)
 
     def test_integration_region_over_neighborhood(self):
+        """Integration at the region over neighborhood level."""
         df_int = integration(self.df, by="region", over="neighborhood", drop_non_numeric=True)
 
         for region in df_int.index:
             self.assertAlmostEqual(self.integration_region_over_neighborhood[region], df_int.loc[region][0], places=10)
 
     def test_di_region_over_neighborhood(self):
+        """Diversity and integration at the region over neighborhood level."""
         df_di = di(self.df, by='region', over='neighborhood', add_segregation=True, drop_non_numeric=True)
 
         for region in df_di.index:
