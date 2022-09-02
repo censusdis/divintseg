@@ -1,18 +1,23 @@
+# Copyright (c) 2022 Darren Erik Vengroff
+
+from typing import Any, Iterable, Optional, Union
+
+import numpy as np
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
-import numpy as np
-from typing import Any, Iterable, Optional, Union
 
 
 def _diversity_of_df(
-        df: pd.DataFrame,
+        df_communities: pd.DataFrame,
 ) -> pd.Series:
     """
     Compute the diversity of each row of a dataframe.
+
+    Each row is assumed to be an independent community.
     
     Parameters
     ----------
-    df
+    df_communities
         The DataFrame
     Returns
     -------
@@ -23,11 +28,11 @@ def _diversity_of_df(
 
     # Compute the total population of each row, as
     # a series.
-    s_total_population = df.sum(axis='columns', numeric_only=True)
+    s_total_population = df_communities.sum(axis='columns', numeric_only=True)
 
     # Compute the fraction of the population in each
     # group. This is also known as p.
-    df_frac = df.div(s_total_population, axis="rows")
+    df_frac = df_communities.div(s_total_population, axis="rows")
 
     # Now let q = 1 - p and compute pq.
     df_pq = df_frac * (1 - df_frac)
@@ -39,13 +44,30 @@ def _diversity_of_df(
 
 
 def diversity(
-        population: Union[pd.DataFrame, Iterable[float]]
+        communities: Union[pd.DataFrame, Iterable[float]]
 ) -> Union[pd.Series, float]:
-    if isinstance(population, pd.DataFrame):
-        return _diversity_of_df(population)[0]
+    """
+    Compute the diversity of one or more communities.
+
+    Parameters
+    ----------
+    communities
+        The communities. This is either an iterable over
+        the population of each group in the community or,
+        more commonly, a :py:class:`~pd.DataFrame` with
+        each row representing a community and each column
+        representing a group.
+    Returns
+    -------
+        The diversity of the community or, if passed a
+        :py:class:`~pd.DataFrame` then a :py:class:`~pd.Series`
+        with one entry for the diversity of each community.
+    """
+    if isinstance(communities, pd.DataFrame):
+        return _diversity_of_df(communities)[0]
     else:
         return _diversity_of_df(
-            pd.DataFrame([population])
+            pd.DataFrame([communities])
         )[0][0]
 
 
@@ -54,6 +76,27 @@ def _drop_non_numeric_except(
         by: Optional[Any],
         over: Optional[Any],
 ) -> pd.DataFrame:
+    """
+    A helper function to drop non-numeric columns that
+    may be present, e.g. for different political boundaries
+    that are not needed for the current diversity or integration
+    calculation.
+
+    Parameters
+    ----------
+    df
+        The original dataframe
+    by
+        What we are grouping by. This column will not be removed.
+    over
+        What we are computing inner diversity over. This column
+        will not be removed.
+
+    Returns
+    -------
+        The data with non-numeric columns other than `by` and
+        `over` removed.
+    """
     drop_cols = [
         col for col in df.columns
         if (
@@ -69,13 +112,46 @@ def _drop_non_numeric_except(
 
 
 def integration(
-        df: pd.DataFrame,
+        df_communities: pd.DataFrame,
         by=None,
         over=None,
         *,
         drop_non_numeric: bool = False,
 ) -> pd.DataFrame:
+    """
+    Compute the integration of one of more communities
+    over a nested level of population aggregation. For
+    example, with US census data we might compute integration
+    of block groups over blocks.
+
+    Parameters
+    ----------
+    df_communities
+        A :py:class:`pd.DataFrame` of communities.
+    by
+        The column or index to group by in order to
+        partition the rows into communities.
+    over
+        The column to group by in order to partition
+        the rows of each community into smaller
+        aggregation units where the base diversity will
+        be computed. If `None` then each row is assumed
+        to represent a different community.
+    drop_non_numeric
+        If `True`, then any non-numeric column other than
+        those specified by `by` and `over` will be
+        implicitly dropped. This is useful if there are columns
+        naming other levels of geographic aggregation that
+        should be ignored.
+    Returns
+    -------
+        A :py:class:`~pd.Series` containing the integration of
+        each community.
+    """
     def integration_of_group(df_group: pd.DataFrame) -> float:
+        """
+        A helper method to compute the integration of each group.
+        """
         if over is not None:
             df_group = df_group.groupby(over).sum()
 
@@ -84,10 +160,10 @@ def integration(
         return np.average(s_div, weights=s_total)
 
     if drop_non_numeric:
-        df = _drop_non_numeric_except(df, by, over)
+        df_communities = _drop_non_numeric_except(df_communities, by, over)
 
     df_integration = pd.DataFrame(
-        df.groupby(by=by).apply(integration_of_group),
+        df_communities.groupby(by=by).apply(integration_of_group),
         columns=['integration']
     )
 
@@ -95,37 +171,100 @@ def integration(
 
 
 def segregation(
-        df: pd.DataFrame,
+        df_communities: pd.DataFrame,
         by=None,
         over=None,
         *,
         drop_non_numeric: bool = False,
 ) -> pd.DataFrame:
-    df_segregation = 1.0 - integration(df, by=by, over=over, drop_non_numeric=drop_non_numeric)
+    """
+    Compute the segregation of one of more communities
+    over a nested level of population aggregation. For
+    example, with US census data we might compute integration
+    of block groups over blocks.
+
+    Parameters
+    ----------
+    df_communities
+        A :py:class:`pd.DataFrame` of communities.
+    by
+        The column or index to group by in order to
+        partition the rows into communities.
+    over
+        The column to group by in order to partition
+        the rows of each community into smaller
+        aggregation units where the base diversity will
+        be computed. If `None` then each row is assumed
+        to represent a different community.
+    drop_non_numeric
+        If `True`, then any non-numeric column other than
+        those specified by `by` and `over` will be
+        implicitly dropped. This is useful if there are columns
+        naming other levels of geographic aggregation that
+        should be ignored.
+    Returns
+    -------
+        A :py:class:`~pd.Series` containing the segregation of
+        each community.
+    """
+
+    df_segregation = 1.0 - integration(df_communities, by=by, over=over, drop_non_numeric=drop_non_numeric)
     df_segregation.columns = ['segregation']
 
     return df_segregation
 
 
 def di(
-        df: pd.DataFrame,
+        df_communities: pd.DataFrame,
         by=None,
         over=None,
         *,
         add_segregation: bool = False,
         drop_non_numeric: bool = False,
 ) -> pd.DataFrame:
+    """
+    Compute the diversity, integration, and optionally
+    the segregation of each of a collection of communities.
+
+    Parameters
+    ----------
+    df_communities
+        A :py:class:`pd.DataFrame` of communities.
+    by
+        The column or index to group by in order to
+        partition the rows into communities.
+    over
+        The column to group by in order to partition
+        the rows of each community into smaller
+        aggregation units where the base diversity will
+        be computed. If `None` then each row is assumed
+        to represent a different community.
+    add_segregation
+        if `True` add a column to the results for
+        segregation.
+    drop_non_numeric
+        If `True`, then any non-numeric column other than
+        those specified by `by` and `over` will be
+        implicitly dropped. This is useful if there are columns
+        naming other levels of geographic aggregation that
+        should be ignored.
+    Returns
+    -------
+        A :py:class:`~pd.Series` containing the diversity,
+        integration, and optionally the segregation of
+        each community.
+    """
     if drop_non_numeric:
-        df = _drop_non_numeric_except(df, by, over)
+        df_communities = _drop_non_numeric_except(df_communities, by, over)
 
     if over is not None:
-        df_sum_by = df.drop(over, axis='columns').groupby(by=by).sum()
+        df_sum_by = df_communities.drop(over, axis='columns').groupby(by=by).sum()
     else:
-        df_sum_by = df.groupby(by=by).sum()
+        df_sum_by = df_communities.groupby(by=by).sum()
 
     df_diversity = diversity(df_sum_by)
 
-    df_integration = integration(df, by=by, over=over)
+    df_integration = integration(df_communities, by=by, over=over)
 
     df_di = pd.concat([df_diversity, df_integration], axis=1)
 
