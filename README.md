@@ -125,36 +125,36 @@ Let's start with the population shown here:
 All three groups are the same size. Let's start
 with the blue group. The chance that a randomly
 chosen member of the population is a member of
-the blue group is thus $`1/3`$, or 
-approximately $`0.333`$. We'll call this number 
-$`p`$. 
+the blue group is thus $1/3$, or 
+approximately $0.333$. We'll call this number 
+$p$. 
 
 The probability that a member of
 the blue group encounters someone of one of the
 other two groups when they encounter a random
 person from the entire population is 
-$`1 - p = 2/3`$, or approximately $`0.667`$.
+$1 - p = 2/3$, or approximately $0.667$.
 
 Since all three groups are of the same size,
-they all have the same value of $`p`$. We can
+they all have the same value of $p$. We can
 summarize this in a table as follows:
 
-| Group                                   | Representation ($`p`$) | Chance of Encountering a Member of Another Group ($`= 1 - p`$) |
+| Group                                   | Representation ($p$) | Chance of Encountering a Member of Another Group ($= 1 - p$) |
 |-----------------------------------------|:----------------------:|:--------------------------------------------------------------:|
-| <span style="color:blue;">Blue</span>   |       $`0.333`$        |                           $`0.667`$                            |
-| <span style="color:blue;">Orange</span> |       $`0.333`$        |                           $`0.667`$                            |
-|  <span style="color:blue;">Green</span> |       $`0.333`$        |                           $`0.667`$                            |
+| <span style="color:blue;">Blue</span>   |       $0.333$        |                           $0.667$                            |
+| <span style="color:blue;">Orange</span> |       $0.333$        |                           $0.667$                            |
+|  <span style="color:blue;">Green</span> |       $0.333$        |                           $0.667$                            |
 
-If we define the diversity of the population $`D`$ to be the average chance
+If we define the diversity of the population $D$ to be the average chance
 of any member of the population encountering a member of another group, then 
 in this example it is
 
-$$`D = 0.333(0.667) + 0.333(0.667) + 0.333(0.667) = 0.667.`$$
+$$D = 0.333(0.667) + 0.333(0.667) + 0.333(0.667) = 0.667.$$
 
 Each of the three terms is for one of the three groups, and for 
 each of them the fraction of the population in the group is
-$`0.333`$ and the chance of encountering a member of another group
-is $`0.667`$.
+$0.333$ and the chance of encountering a member of another group
+is $0.667$.
 
 Now let's look at another example. It is one of the communities we
 looked at above.
@@ -166,15 +166,15 @@ looked at above.
 In this example, each of the groups is also exactly one third of
 the population of the community, so we have the exact same numbers as before:
 
-| Group                                   | Representation ($`p`$) | Chance of Encountering a Member of Another Group ($`= 1 - p`$) |
+| Group                                   | Representation ($p$) | Chance of Encountering a Member of Another Group ($= 1 - p$) |
 |-----------------------------------------|:----------------------:|:--------------------------------------------------------------:|
-| <span style="color:blue;">Blue</span>   |       $`0.333`$        |                           $`0.667`$                            |
-| <span style="color:blue;">Orange</span> |       $`0.333`$        |                           $`0.667`$                            |
-| <span style="color:blue;">Green</span>  |       $`0.333`$        |                           $`0.667`$                            |
+| <span style="color:blue;">Blue</span>   |       $0.333$        |                           $0.667$                            |
+| <span style="color:blue;">Orange</span> |       $0.333$        |                           $0.667$                            |
+| <span style="color:blue;">Green</span>  |       $0.333$        |                           $0.667$                            |
 
 And again, 
 
-$$`D = 0.333(0.667) + 0.333(0.667) + 0.333(0.667) = 0.667.`$$
+$$D = 0.333(0.667) + 0.333(0.667) + 0.333(0.667) = 0.667.$$
 
 So this community has the same exact diversity as the last one,
 though it is clearly more integrated. We'll return to that later.
@@ -186,21 +186,21 @@ one we looked at before.
 ![a community](docs/static/nd-and-ni.png)
 </p>
 
-Let's compute the $`p`$ for each of the three groups, and then
-compute $`D`$. We'll add a column to our table
-where we will compute $`p(1-p)`$ for each group, and then we 
-will sum these up at the bottom of the table to get $`D`$.
+Let's compute the $p$ for each of the three groups, and then
+compute $D$. We'll add a column to our table
+where we will compute $p(1-p)$ for each group, and then we 
+will sum these up at the bottom of the table to get $D$.
 
-| Group                                   |   $`p`$   | $`1 - p`$ | Weighted Representation $`p(1-p)`$ |
+| Group                                   |   $p$   | $1 - p$ | Weighted Representation $p(1-p)$ |
 |-----------------------------------------|:---------:|:---------:|:----------------------------------:|
-| <span style="color:blue;">Blue</span>   | $`0.963`$ | $`0.037`$ |             $`0.036`$              |
-| <span style="color:blue;">Orange</span> | $`0.022`$ | $`0.978`$ |             $`0.022`$              |
-| <span style="color:blue;">Green</span>  | $`0.015`$ | $`0.985`$ |             $`0.015`$              |
-| Weighted Sum                            ||| $`0.073`$ |
+| <span style="color:blue;">Blue</span>   | $0.963$ | $0.037$ |             $0.036$              |
+| <span style="color:blue;">Orange</span> | $0.022$ | $0.978$ |             $0.022$              |
+| <span style="color:blue;">Green</span>  | $0.015$ | $0.985$ |             $0.015$              |
+| Weighted Sum                            ||| $0.073$ |
 
-So this community's diversity is $`0.073`$. As we would expect
+So this community's diversity is $0.073$. As we would expect
 from visual inspection, it is much lower than the diversity of the
-previous two communities ($`0.667`$).
+previous two communities ($0.667$).
 
 #### Integration
 
@@ -233,99 +233,99 @@ of equal population.
 
 We can compute the diversity withing each of the three neighborhoods.
 Since each neighborhood has exactly equal numbers of members of each
-group, each neighborhood has diversity $`D = 0.667`$. We get this 
+group, each neighborhood has diversity $D = 0.667$. We get this 
 number by doing the exact same kind of calculation we did for the 
 diversity of the community with equal members of each group above. 
 We just repeat it three times, once for each neighborhood.
 
-Now, let's define $`r`$ for each neighborhood to be the fraction of
+Now, let's define $r$ for each neighborhood to be the fraction of
 the total population of the community that lives in the neighborhood.
-For our current example, $`r = 1/3`$ for each of the three 
+For our current example, $r = 1/3$ for each of the three 
 neighborhoods since they are of equal size. 
 
-Knowing $`r`$ and $`D`$ for each neighborhood, we can compute the
-integration of the community by multiplying the $`r`$ and $`D`$ values
+Knowing $r$ and $D$ for each neighborhood, we can compute the
+integration of the community by multiplying the $r$ and $D$ values
 together for each neighborhood and summing them up. We do this in the
 following table.
 
-| Neighborhood |   $`r`$   |   $`D`$   | Weighted Diversity $`rD`$ |
+| Neighborhood |   $r$   |   $D$   | Weighted Diversity $rD$ |
 |--------------|:---------:|:---------:|:-------------------------:|
-| A            | $`0.333`$ | $`0.667`$ |         $`0.222`$         |
-| B            | $`0.333`$ | $`0.667`$ |         $`0.222`$         |
-| C            | $`0.333`$ | $`0.667`$ |         $`0.222`$         |
-| Weighted Sum ||| $`0.667`$ |
+| A            | $0.333$ | $0.667$ |         $0.222$         |
+| B            | $0.333$ | $0.667$ |         $0.222$         |
+| C            | $0.333$ | $0.667$ |         $0.222$         |
+| Weighted Sum ||| $0.667$ |
 
-So the integration of our community is $`I = 0.667`$. This is 
+So the integration of our community is $I = 0.667$. This is 
 exactly the same as the overall diversity of the community.
 
 We won't go into the details here, but one of the consequences
 of the way we set up our mathematical definitions of diversity
-and integration is that the value of $`I`$ for a community can
-never be more that the value of $`D`$. That is, $`I \le D`$ in
-all cases. More generally, $`I`$ and $`D`$ are also both between
-$`0`$ and $`1`$, so $`0 \le I \le D \le 1`$ no matter how our
+and integration is that the value of $I$ for a community can
+never be more that the value of $D$. That is, $I \le D$ in
+all cases. More generally, $I$ and $D$ are also both between
+$0$ and $1$, so $0 \le I \le D \le 1$ no matter how our
 community and the neighborhoods within it are constructed. No 
 matter how big the community is, how big the neighborhoods are,
 whether the neighborhoods are all the same size or not, or how
 many groups there are, the fundamental relationship 
 
-$$`0 \le I \le D \le 1`$$
+$$0 \le I \le D \le 1$$
 
 will always hold true.
 
-Now let's look at a community where $`I < D`$, meaning that 
+Now let's look at a community where $I < D$, meaning that 
 integration is less than diversity in the community.
 
 <p align="center">
 ![a community of neighborhoods](docs/static/n-d-and-i2.png)
 </p>
 
-If we repeat our calculation of $`D`$ for each neighborhood and
-use that to calculate $`I`$ again, we get
+If we repeat our calculation of $D$ for each neighborhood and
+use that to calculate $I$ again, we get
 
-| Neighborhood |   $`r`$   |   $`D`$   | Weighted Diversity $`rD`$ |
+| Neighborhood |   $r$   |   $D$   | Weighted Diversity $rD$ |
 |--------------|:---------:|:---------:|:-------------------------:|
-| A            | $`0.333`$ | $`0.667`$ |         $`0.222`$         |
-| B            | $`0.333`$ | $`0.444`$ |         $`0.148`$         |
-| C            | $`0.333`$ | $`0.444`$ |         $`0.148`$         |
-| Weighted Sum ||| $`0.519`$ |
+| A            | $0.333$ | $0.667$ |         $0.222$         |
+| B            | $0.333$ | $0.444$ |         $0.148$         |
+| C            | $0.333$ | $0.444$ |         $0.148$         |
+| Weighted Sum ||| $0.519$ |
 
-So $`I = 0.519`$ for this community. Looking at this community vs. the
+So $I = 0.519$ for this community. Looking at this community vs. the
 previous one, it does appear to be less integrated. Neighborhood A
 is diverse, with equal numbers of each of the three groups, but the other
 two neighborhoods are less diverse. Each of them is completely lacking
 one of the three groups and has unequal numbers of the other two.
 
-So, as far as out math working out to produce $`I = 0.519 < D = 0.667`$
+So, as far as out math working out to produce $I = 0.519 < D = 0.667$
 for this community, things make sense. The way the people in the 
 community are divided up into neighborhoods results in integration
 being less than the diversity of the community as a whole. This is in
 contrast to the previous example where each neighborhood was as diverse
-as the whole community, and as a result, $`I`$ was equal to $`D`$.
+as the whole community, and as a result, $I$ was equal to $D$.
 
 Now let's look at a third example, one in which the diversity of the 
 community as a whole was already low, and even the limited diversity
 that exists is not shared among the neighborhoods. This should result
-in a value of $`I`$ even lower than the already low value of $`D`$.
+in a value of $I$ even lower than the already low value of $D$.
 
 <p align="center">
 ![a community of neighborhoods](docs/static/n-nd-and-s.png)
 </p>
 
-If we do our calculation of $`D`$ as we did above when we looked at 
-this community without the neighborhood boundaries, $`D = 0.073`$.
-Now let's calculate $`I`$.
+If we do our calculation of $D$ as we did above when we looked at 
+this community without the neighborhood boundaries, $D = 0.073$.
+Now let's calculate $I$.
 
-| Neighborhood |   $`r`$   |   $`D`$   | Weighted Diversity $`rD`$ |
+| Neighborhood |   $r$   |   $D$   | Weighted Diversity $rD$ |
 |--------------|:---------:|:---------:|:-------------------------:|
-| A            | $`0.333`$ | $`0.000`$ |         $`0.000`$         |
-| B            | $`0.333`$ | $`0.000`$ |         $`0.000`$         |
-| C            | $`0.333`$ | $`0.204`$ |         $`0.068`$         |
-| Weighted Sum ||| $`0.068`$ |
+| A            | $0.333$ | $0.000$ |         $0.000$         |
+| B            | $0.333$ | $0.000$ |         $0.000$         |
+| C            | $0.333$ | $0.204$ |         $0.068$         |
+| Weighted Sum ||| $0.068$ |
 
 Two of the neighborhoods (A and B) have no diversity at all. Neighborhood
-C has a little bit. The overall integration of the community is $`I = 0.068`$,
-which is less than the diversity of $`D = 0.073`$ as we expected.
+C has a little bit. The overall integration of the community is $I = 0.068$,
+which is less than the diversity of $D = 0.073$ as we expected.
 
 Finally, just to drive home the point that diversity and integration are
 different concepts, let's look at a community with high diversity but
@@ -335,24 +335,24 @@ no integration at all.
 ![a community of neighborhoods](docs/static/n-d-and-s.png)
 </p>
 
-Overall diversity of the community is $`D = 0.667`$, but if we calculate
-$`I`$ we get
+Overall diversity of the community is $D = 0.667$, but if we calculate
+$I$ we get
 
-| Neighborhood |   $`r`$   |   $`D`$   | Weighted Diversity $`rD`$ |
+| Neighborhood |   $r$   |   $D$   | Weighted Diversity $rD$ |
 |--------------|:---------:|:---------:|:-------------------------:|
-| A            | $`0.333`$ | $`0.000`$ |         $`0.000`$         |
-| B            | $`0.333`$ | $`0.000`$ |         $`0.000`$         |
-| C            | $`0.333`$ | $`0.000`$ |         $`0.000`$         |
-| Weighted Sum ||| $`0.000`$ |
+| A            | $0.333$ | $0.000$ |         $0.000$         |
+| B            | $0.333$ | $0.000$ |         $0.000$         |
+| C            | $0.333$ | $0.000$ |         $0.000$         |
+| Weighted Sum ||| $0.000$ |
 
-$`I = 0`$. Despite the community being diverse, it is not integrated at all.
+$I = 0$. Despite the community being diverse, it is not integrated at all.
 
 #### Segregation
 
 Segregation is the opposite of integration. Since we know that for
-all communities, $`0 \le I \le 1`$ we simply define segregation as $`S = 1 - I`$.
-We don't generally use $`S`$ as often as we use $`D`$ and $`I`$, since it is
-so related to $`I`$, but for completeness, the `divintseg` library can 
+all communities, $0 \le I \le 1$ we simply define segregation as $S = 1 - I$.
+We don't generally use $S$ as often as we use $D$ and $I$, since it is
+so related to $I$, but for completeness, the `divintseg` library can 
 compute it.
 
 ## Code Examples
