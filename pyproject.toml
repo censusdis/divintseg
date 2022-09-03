@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "divintseg"
-version = "0.1.0"
+version = "0.1.1"
 description = "Tools for computing Diversity, Integration and Segregation Metrics"
 license = "HL3-CL-ECO-EXTR-FFD-LAW-MIL-SV"
 authors = ["vengroff <vengroff@gmail.com>"]
 readme = "README.md"
-repository = "https://gitlab.com/somaccr/divintseg/divintseg.git"
+repository = "https://github.com/vengroff/divintseg"
 keywords = ["diversity", "integration", "segregation", "demographics"]
 classifiers = [
     "Programming Language :: Python :: 3.9",
