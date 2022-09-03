@@ -33,7 +33,7 @@ representations.
 We'll start with a community that, intuitively, looks
 both diverse and integrated.
 
-![a community](docs/static/d-and-i.png)
+![a community](https://github.com/vengroff/divintseg/blob/main/docs/static/d-and-i.png?raw=true)
 
 Each small circle represents an individual. The color
 of the circle represents which one of three groups 
