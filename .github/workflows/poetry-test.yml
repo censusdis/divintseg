@@ -52,5 +52,5 @@ jobs:
       - name: Run tests
         run: |
           source .venv/bin/activate
-          pytest tests/
+          pytest --cov-report term --cov-report xml tests/
           coverage report
