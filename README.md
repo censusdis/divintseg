@@ -5,6 +5,8 @@ integration, and segregation statistics on data sets.
 Typically, it is used with demographic data such as 
 census data.
 
+[![Hippocratic License HL3-CL-ECO-EXTR-FFD-LAW-MIL-SV](https://img.shields.io/static/v1?label=Hippocratic%20License&message=HL3-CL-ECO-EXTR-FFD-LAW-MIL-SV&labelColor=5e2751&color=bc8c3d)](https://firstdonoharm.dev/version/3/0/cl-eco-extr-ffd-law-mil-sv.html)
+
 ## Methodology
 
 `divintseg` uses a straightforward methodology to
@@ -242,7 +244,7 @@ For our current example, $`r = 1/3`$ for each of the three
 neighborhoods since they are of equal size. 
 
 Knowing $`r`$ and $`D`$ for each neighborhood, we can compute the
-integration of the community by multiply the $`r`$ and $`D`$ values
+integration of the community by multiplying the $`r`$ and $`D`$ values
 together for each neighborhood and summing them up. We do this in the
 following table.
 

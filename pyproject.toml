@@ -2,8 +2,16 @@
 name = "divintseg"
 version = "0.1.0"
 description = "Tools for computing Diversity, Integration and Segregation Metrics"
+license = "HL3-CL-ECO-EXTR-FFD-LAW-MIL-SV"
 authors = ["vengroff <vengroff@gmail.com>"]
 readme = "README.md"
+repository = "https://gitlab.com/somaccr/divintseg/divintseg.git"
+keywords = ["diversity", "integration", "segregation", "demographics"]
+classifiers = [
+    "Programming Language :: Python :: 3.9",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research"
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
