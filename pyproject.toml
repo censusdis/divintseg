@@ -19,6 +19,11 @@ numpy = "^1.23.2"
 pandas = "^1.4.4"
 
 
+[tool.poetry.group.test.dependencies]
+pytest = "^7.1.3"
+coverage = "^6.4.4"
+pytest-cov = "^3.0.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
