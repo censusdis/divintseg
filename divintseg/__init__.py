@@ -5,9 +5,4 @@ Tools for computing diversity, integration, and segregation
 metrics.
 """
 
-from ._core import (
-    diversity,
-    integration,
-    segregation,
-    di,
-)
+from ._core import di, diversity, integration, segregation  # noqa: F401
