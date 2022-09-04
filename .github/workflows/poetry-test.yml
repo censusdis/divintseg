@@ -82,4 +82,4 @@ jobs:
           coverage xml -o ./reports/coverage/coverage.xml
           coverage html -d ./reports/coverage
           genbadge coverage -o ./reports/coverage/coverage-badge.svg
-          ls -l ./reports/coverage
+          # TODO - how to retain and serve this badge in README.md?
