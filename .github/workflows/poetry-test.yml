@@ -84,3 +84,6 @@ jobs:
           coverage xml -o ./reports/junit/junit.xml
           coverage html -d ./reports/junit
           ls -R -a ./reports
+          genbadge tests
+          genbadge coverage
+          ls -l *.svg
