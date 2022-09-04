@@ -81,3 +81,6 @@ jobs:
           # ls -R -a
           coverage run -m pytest 
           coverage report
+          coverage xml -o ./reports/junit/junit.xml
+          coverage html -o ./reports/junit/report.html
+          ls -R -a ./reports
