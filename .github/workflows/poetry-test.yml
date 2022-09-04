@@ -74,8 +74,12 @@ jobs:
       #----------------------------------------------
       #              run test suite
       #----------------------------------------------
-      - name: Run tests
+      - name: Run tests and coverage
         run: |
           source .venv/bin/activate
-          pytest --cov-report term --cov-report xml tests/
-          # coverage report
+          coverage run -m pytest 
+          coverage report
+          coverage xml -o ./reports/coverage/coverage.xml
+          coverage html -d ./reports/coverage
+          genbadge coverage -o ./reports/coverage/coverage-badge.svg
+          ls -l ./reports/coverage
