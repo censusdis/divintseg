@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "divintseg"
-version = "0.1.1"
-description = "Tools for computing Diversity, Integration and Segregation Metrics"
+version = "0.1.2"
+description = "Tools for computing diversity, integration and segregation metrics"
 license = "HL3-CL-ECO-EXTR-FFD-LAW-MIL-SV"
 authors = ["vengroff <vengroff@gmail.com>"]
 readme = "README.md"
