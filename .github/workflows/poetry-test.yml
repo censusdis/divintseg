@@ -81,10 +81,10 @@ jobs:
           # ls -R -a
           coverage run -m pytest 
           coverage report
-          coverage xml -o ./reports/junit/junit.xml
+          coverage xml -o ./reports/coverage/coverage.xml
           coverage html -d ./reports/junit
           ls -R -a ./reports
-          head -20 ./reports/junit/junit.xml
+          head -20 ./reports/coverage/coverage.xml
           # echo tests
           # genbadge tests
           echo coverage
