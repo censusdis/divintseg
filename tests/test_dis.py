@@ -321,5 +321,35 @@ class IntegrationOverNonNumericTestCase(unittest.TestCase):
             )
 
 
+class ZeroPopulationTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        """Set up before each test."""
+        self.df = pd.DataFrame(
+            [
+                ["X", "X1", 10, 10, 10],
+                ["X", "X1", 20, 20, 20],
+                ["X", "X1", 30, 30, 30],
+                ["X", "X2", 0, 0, 0],
+                ["X", "X2", 0, 0, 0],
+                ["X", "X2", 0, 0, 0],
+            ],
+            columns=["region", "subregion", "A", "B", "C"],
+        )
+
+    def testDiversity(self):
+        df_di = di(self.df, by="subregion", over="region")
+
+        df_expected = pd.DataFrame(
+            [
+                ["X1", 2.0 / 3.0, 2.0 / 3.0],
+                ["X2", 0.0, 0.0],
+            ],
+            columns=["subregion", "diversity", "integration"],
+        )
+        df_expected = df_expected.set_index("subregion")
+
+        self.assertTrue((df_expected == df_di).any().any())
+
+
 if __name__ == "__main__":
     unittest.main()
