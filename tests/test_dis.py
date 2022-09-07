@@ -333,7 +333,7 @@ class ZeroPopulationTestCase(unittest.TestCase):
                 ["X", "X2", 0, 0, 0],
                 ["X", "X2", 0, 0, 0],
             ],
-            columns=["region", "subregion", "A", "B", "C"]
+            columns=["region", "subregion", "A", "B", "C"],
         )
 
     def testDiversity(self):
@@ -344,7 +344,7 @@ class ZeroPopulationTestCase(unittest.TestCase):
                 ["X1", 2.0 / 3.0, 2.0 / 3.0],
                 ["X2", 0.0, 0.0],
             ],
-            columns=["subregion", "diversity", "integration"]
+            columns=["subregion", "diversity", "integration"],
         )
         df_expected = df_expected.set_index("subregion")
 
