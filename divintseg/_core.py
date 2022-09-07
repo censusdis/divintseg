@@ -1,6 +1,6 @@
 # Copyright (c) 2022 Darren Erik Vengroff
 
-from typing import Any, Iterable, Optional, Union
+from typing import Any, Iterable, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -9,7 +9,7 @@ from pandas.api.types import is_numeric_dtype
 
 def _diversity_of_df(
     df_communities: pd.DataFrame,
-) -> pd.Series:
+) -> Tuple[pd.Series, pd.Series]:
     """
     Compute the diversity of each row of a dataframe.
 
@@ -153,6 +153,10 @@ def integration(
             df_group = df_group.groupby(over).sum()
 
         s_div, s_total = _diversity_of_df(df_group)
+
+        # If there is no population, then there is no integration.
+        if s_total.sum() == 0:
+            return 0.0
 
         return np.average(s_div, weights=s_total)
 
