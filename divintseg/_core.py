@@ -150,7 +150,7 @@ def integration(
         A helper method to compute the integration of each group.
         """
         if over is not None:
-            df_group = df_group.groupby(over).sum()
+            df_group = df_group.groupby(over).sum(numeric_only=True)
 
         s_div, s_total = _diversity_of_df(df_group)
 
@@ -261,9 +261,13 @@ def di(
         df_communities = _drop_non_numeric_except(df_communities, by, over)
 
     if over is not None:
-        df_sum_by = df_communities.drop(over, axis="columns").groupby(by=by).sum()
+        df_sum_by = (
+            df_communities.drop(over, axis="columns")
+            .groupby(by=by)
+            .sum(numeric_only=True)
+        )
     else:
-        df_sum_by = df_communities.groupby(by=by).sum()
+        df_sum_by = df_communities.groupby(by=by).sum(numeric_only=True)
 
     df_diversity = diversity(df_sum_by)
 
