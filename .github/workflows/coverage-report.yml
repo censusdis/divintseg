@@ -1,0 +1,102 @@
+name: coverage-report
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      #----------------------------------------------
+      #       check-out repo and set-up python
+      #----------------------------------------------
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      #----------------------------------------------
+      #  -----  install & configure poetry  -----
+      #----------------------------------------------
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      #----------------------------------------------
+      #       load cached venv if cache exists
+      #----------------------------------------------
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      #----------------------------------------------
+      # install dependencies if cache does not exist
+      #----------------------------------------------
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+      #----------------------------------------------
+      # install your root project, if required
+      #----------------------------------------------
+      - name: Install library
+        run: poetry install --no-interaction
+      #----------------------------------------------
+      #              run test suite
+      #----------------------------------------------
+      - name: Run tests and coverage
+        run: |
+          source .venv/bin/activate
+          coverage run -m pytest --junitxml=reports/junit/junit.xml
+      #----------------------------------------------
+      #              generate coverage
+      #----------------------------------------------
+      - name: Generate coverage reports and badges
+        run: |
+          source .venv/bin/activate
+          coverage report 
+          coverage xml -o ./reports/coverage/coverage.xml
+          coverage html -d ./reports/coverage 
+          genbadge coverage -n coverage -o ./reports/coverage/coverage-badge.svg
+          genbadge tests --name tests -i reports/junit/junit.xml -o ./reports/junit/tests-badge.svg
+      #----------------------------------------------
+      #              archive code coverage
+      #----------------------------------------------
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: test_artifacts
+          path: tests/_test_artifacts
+          retention-days: 7
+      #----------------------------------------------
+      #              commit coverage
+      #----------------------------------------------
+      - name: Commit coverage reports and badge
+        run: |
+          /usr/bin/git config --local user.email "action@github.com"
+          /usr/bin/git config --local user.name "GitHub Action"
+          /usr/bin/git add ./reports/coverage/*.html
+          /usr/bin/git add ./reports/coverage/*.png
+          /usr/bin/git add ./reports/coverage/*.js
+          /usr/bin/git add ./reports/coverage/*.css
+          /usr/bin/git add ./reports/coverage/coverage-badge.svg
+          /usr/bin/git add ./reports/junit/tests-badge.svg
+          /usr/bin/git diff --staged --quiet || /usr/bin/git commit -m "Update badge(s) [github action]"
+          /usr/bin/git pull --rebase
+      - name: Query branch name
+        run: |
+          echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: query_branch
+      - name: Push coverage commit
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ steps.query_branch.outputs.branch }}
