@@ -40,7 +40,7 @@ representations.
 We'll start with a community that, intuitively, looks
 both diverse and integrated.
 
-![a community](docs/static/d-and-i.png?raw=true)
+![a community](docs/_static/d-and-i.png?raw=true)
 
 Each small circle represents an individual. The color
 of the circle represents which one of three groups 
@@ -55,7 +55,7 @@ than they are. This community looks integrated.
 In contrast, here is a community that looks diverse
 but not integrated.
 
-![a community](docs/static/d-and-s.png?raw=true)
+![a community](docs/_static/d-and-s.png?raw=true)
 
 Just like the previous community, this community
 is diverse. It has an equal number of members of
@@ -68,7 +68,7 @@ Now let's look at some communities that are less diverse.
 Here is a non-diverse community. Almost all the 
 individuals are in the blue group. 
 
-![a community](docs/static/nd-and-ni.png?raw=true)
+![a community](docs/_static/nd-and-ni.png?raw=true)
 
 This is also a segregated community. The few members of
 the orange and green groups are all together in one
@@ -77,7 +77,7 @@ corner of the community.
 Let's look at another community that is also not diverse,
 but is at least a little more integrated than the last one.
 
-![a community](docs/static/nd-and-mi.png?raw=true)
+![a community](docs/_static/nd-and-mi.png?raw=true)
 
 It is certainly more integrated than the last one, 
 but is this community integrated? The few individuals
@@ -117,7 +117,7 @@ across all groups.
 
 Let's start with the population shown here:
 
-![a community](docs/static/d-and-s2.png?raw=true)
+![a community](docs/_static/d-and-s2.png?raw=true)
 
 All three groups are the same size. Let's start
 with the blue group. The chance that a randomly
@@ -156,7 +156,7 @@ is $0.667$.
 Now let's look at another example. It is one of the communities we
 looked at above.
 
-![a community](docs/static/d-and-i.png?raw=true)
+![a community](docs/_static/d-and-i.png?raw=true)
 
 In this example, each of the groups is also exactly one third of
 the population of the community, so we have the exact same numbers as before:
@@ -177,7 +177,7 @@ though it is clearly more integrated. We'll return to that later.
 Finally, let's look at a less diverse community. Again, this is
 one we looked at before.
 
-![a community](docs/static/nd-and-ni.png?raw=true)
+![a community](docs/_static/nd-and-ni.png?raw=true)
 
 Let's compute the $p$ for each of the three groups, and then
 compute $D$. We'll add a column to our table
@@ -220,7 +220,7 @@ neighborhood diversity in the community.
 Let's look at an example of a community consisting of three neighborhoods
 of equal population.
 
-![a community of neighborhoods](docs/static/n-d-and-i.png?raw=true)
+![a community of neighborhoods](docs/_static/n-d-and-i.png?raw=true)
 
 We can compute the diversity withing each of the three neighborhoods.
 Since each neighborhood has exactly equal numbers of members of each
@@ -267,7 +267,7 @@ will always hold true.
 Now let's look at a community where $I < D$, meaning that 
 integration is less than diversity in the community.
 
-![a community of neighborhoods](docs/static/n-d-and-i2.png?raw=true)
+![a community of neighborhoods](docs/_static/n-d-and-i2.png?raw=true)
 
 If we repeat our calculation of $D$ for each neighborhood and
 use that to calculate $I$ again, we get
@@ -297,7 +297,7 @@ community as a whole was already low, and even the limited diversity
 that exists is not shared among the neighborhoods. This should result
 in a value of $I$ even lower than the already low value of $D$.
 
-![a community of neighborhoods](docs/static/n-nd-and-s.png?raw=true)
+![a community of neighborhoods](docs/_static/n-nd-and-s.png?raw=true)
 
 If we do our calculation of $D$ as we did above when we looked at 
 this community without the neighborhood boundaries, $D = 0.073$.
@@ -318,7 +318,7 @@ Finally, just to drive home the point that diversity and integration are
 different concepts, let's look at a community with high diversity but
 no integration at all.
 
-![a community of neighborhoods](docs/static/n-d-and-s.png?raw=true)
+![a community of neighborhoods](docs/_static/n-d-and-s.png?raw=true)
 
 Overall diversity of the community is $D = 0.667$, but if we calculate
 $I$ we get
