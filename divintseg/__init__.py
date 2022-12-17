@@ -7,9 +7,4 @@ metrics.
 
 from ._core import di, diversity, integration, segregation  # noqa: F401
 
-__all__ = (
-    "di",
-    "diversity",
-    "integration",
-    "segregation"
-)
+__all__ = ("di", "diversity", "integration", "segregation")

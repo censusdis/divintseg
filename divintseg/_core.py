@@ -98,7 +98,9 @@ def _drop_non_numeric_except(
     drop_cols = [
         col
         for col in df.columns
-        if (not pandas.api.types.is_numeric_dtype(df[col]) and col != by and col != over)
+        if (
+            not pandas.api.types.is_numeric_dtype(df[col]) and col != by and col != over
+        )
     ]
 
     if len(drop_cols) > 0:

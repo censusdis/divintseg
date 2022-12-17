@@ -118,7 +118,7 @@ class IntegrationTestCase(unittest.TestCase):
 
     def test_integration_drop(self):
         """Test integration dropping other cols."""
-        self.df['country'] = 'QQQ'
+        self.df["country"] = "QQQ"
 
         df_int = integration(self.df, by="region", drop_non_numeric=True)
 
