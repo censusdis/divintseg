@@ -116,6 +116,26 @@ class IntegrationTestCase(unittest.TestCase):
                 self.integration[region], df_int.loc[region][0], places=10
             )
 
+    def test_integration_drop(self):
+        """Test integration dropping other cols."""
+        self.df["country"] = "QQQ"
+
+        df_int = integration(self.df, by="region", drop_non_numeric=True)
+
+        for region in df_int.index:
+            self.assertAlmostEqual(
+                self.integration[region], df_int.loc[region][0], places=10
+            )
+
+    def test_integration_drop_nothing(self):
+        """Test integration dropping other cols when there are none to drop."""
+        df_int = integration(self.df, by="region", drop_non_numeric=True)
+
+        for region in df_int.index:
+            self.assertAlmostEqual(
+                self.integration[region], df_int.loc[region][0], places=10
+            )
+
     def test_segregation(self):
         """Test segregation."""
         df_seg = segregation(self.df, "region")

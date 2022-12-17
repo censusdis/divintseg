@@ -4,7 +4,7 @@ from typing import Any, Iterable, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from pandas.api.types import is_numeric_dtype
+import pandas.api.types
 
 
 def _diversity_of_df(
@@ -32,10 +32,10 @@ def _diversity_of_df(
 
     # Compute the fraction of the population in each
     # group. This is also known as p.
-    df_frac = df_communities.div(s_total_population, axis="rows")
+    df_p = df_communities.div(s_total_population, axis="rows")
 
     # Now let q = 1 - p and compute pq.
-    df_pq = df_frac * (1 - df_frac)
+    df_pq = df_p * (1 - df_p)
 
     s_diversity = df_pq.sum(axis=1)
     s_diversity.name = "diversity"
@@ -98,7 +98,9 @@ def _drop_non_numeric_except(
     drop_cols = [
         col
         for col in df.columns
-        if (not is_numeric_dtype(df[col]) and col != by and col != over)
+        if (
+            not pandas.api.types.is_numeric_dtype(df[col]) and col != by and col != over
+        )
     ]
 
     if len(drop_cols) > 0:

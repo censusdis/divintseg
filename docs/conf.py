@@ -17,6 +17,7 @@ from typing import MutableMapping
 # python because RTD will not import them.
 MOCK_MODULES = [
     "pandas",
+    "pandas.api.types",
     "numpy",
     "scipy",
 ]
