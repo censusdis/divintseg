@@ -6,6 +6,7 @@ integration, and segregation statistics on data sets.
 It is typically used with demographic data such as
 census data.
 
+
 .. toctree::
    :maxdepth: 1
    :hidden:
