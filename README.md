@@ -160,24 +160,28 @@ each of them the fraction of the population in the group is
 $0.333$ and the chance of encountering a member of another group
 is $0.667$.
 
-More formally, what we computed is 
-
-$$D = \sum p(1 - p)$$
-
-The [Gini-Simpson index](https://en.wikipedia.org//wiki/Diversity_index#Gini%E2%80%93Simpson_index)
-formulation of diversity is normally written as the equivalent expression
-
-$$D = 1 - \sum p^2.$$
-
-The two are equivalent because 
-
-$$D = \sum p(1 - p) = \sum p - \sum p^2 = 1 - \sum p^2$$
-
-The last step works because the $p$ values are probabilities for each group, so they add up to $1$, i.e. $\sum p = 1$.
-
-But in our discussion we stick to the earlier formulation because we think
-it more clearly expresses what we are computing and why, especially for
-small examples like the ones we are considering here.
+> ### Some additional strictly optional mathematical details
+>
+> (Feel free to skip this section if you like.)
+>  
+> More formally, what we computed is 
+>
+> $$D = \sum p(1 - p)$$
+>
+> The [Gini-Simpson index](https://en.wikipedia.org//wiki/Diversity_index#Gini%E2%80%93Simpson_index)
+> formulation of diversity is normally written as the equivalent expression
+>
+> $$D = 1 - \sum p^2.$$
+>
+> The two are equivalent because 
+> 
+> $$D = \sum p(1 - p) = \sum p - \sum p^2 = 1 - \sum p^2$$
+> 
+> The last step works because the $p$ values are probabilities for each group, so they add up to $1$, i.e. $\sum p = 1$.
+>
+> But in our discussion we stick to the earlier formulation because we think
+> it more clearly expresses what we are computing and why, especially for
+> small examples like the ones we are considering here.
 
 Now let's look at another example. It is one of the communities we
 looked at above.
