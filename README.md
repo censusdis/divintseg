@@ -104,7 +104,14 @@ Let's begin with a working definition of diversity.
 We say a community is diverse if an average 
 member of the community is likely to encounter 
 people who are not members of their group as they 
-navigate the community.
+navigate the community. This idea has been 
+proposed multiple times across different fields.
+It is known as the 
+[Gini-Simpson index](https://en.wikipedia.org//wiki/Diversity_index#Gini%E2%80%93Simpson_index),
+the Gibbs-Martin index,
+the Blau index, and
+expected heterozygosity 
+in different fields.
 
 Now let's turn that into math. In order to
 compute the average chance a member of the 
@@ -136,8 +143,8 @@ Since all three groups are of the same size,
 they all have the same value of $p$. We can
 summarize this in a table as follows:
 
-| Group                                   | Representation ($p$) | Chance of Encountering a Member of Another Group ($= 1 - p$) |
-|-----------------------------------------|:----------------------:|:--------------------------------------------------------------:|
+| Group                                   | Representation $p$ | Chance of Encountering a Member of Another Group $= 1 - p$ |
+|-----------------------------------------|:--------------------:|:------------------------------------------------------------:|
 | <span style="color:blue;">Blue</span>   |       $0.333$        |                           $0.667$                            |
 | <span style="color:blue;">Orange</span> |       $0.333$        |                           $0.667$                            |
 |  <span style="color:blue;">Green</span> |       $0.333$        |                           $0.667$                            |
@@ -153,6 +160,19 @@ each of them the fraction of the population in the group is
 $0.333$ and the chance of encountering a member of another group
 is $0.667$.
 
+More formally, what we computed is 
+
+$$D = \sum p(1 - p)$$
+
+The [Gini-Simpson index](https://en.wikipedia.org//wiki/Diversity_index#Gini%E2%80%93Simpson_index)
+formulation of diversity is normally written as the equivalent expression
+
+$$D = 1 - \sum p^2$$
+
+But in our discussion we stick to the earlier formulation because we think
+it more clearly expresses what we are computing and why, especially for
+small examples like the ones we are considering here.
+
 Now let's look at another example. It is one of the communities we
 looked at above.
 
@@ -161,8 +181,8 @@ looked at above.
 In this example, each of the groups is also exactly one third of
 the population of the community, so we have the exact same numbers as before:
 
-| Group                                   | Representation ($p$) | Chance of Encountering a Member of Another Group ($= 1 - p$) |
-|-----------------------------------------|:----------------------:|:--------------------------------------------------------------:|
+| Group                                   | Representation $p$ | Chance of Encountering a Member of Another Group $= 1 - p$ |
+|-----------------------------------------|:--------------------:|:------------------------------------------------------------:|
 | <span style="color:blue;">Blue</span>   |       $0.333$        |                           $0.667$                            |
 | <span style="color:blue;">Orange</span> |       $0.333$        |                           $0.667$                            |
 | <span style="color:blue;">Green</span>  |       $0.333$        |                           $0.667$                            |
