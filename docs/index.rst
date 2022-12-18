@@ -200,6 +200,108 @@ Again, the details of the computation are explained in the
 the `README.md`_ file in the
 `divintseg repository`_.
 
+Additional Uses
+===============
+
+We often think of diversity and integration as something we look
+at in residential communities, as in the examples above. But it
+can be used in other contexts, for example to look at the diversity
+and integration of a company. Instead of a community, we look at
+a company, and instead of neighborhoods, we look at departments.
+A company might be diverse overall, but if all the executive roles
+are populated by one demographic group and all the low-level roles
+are populated by a different demographic group, it might not be so
+integrated.
+
+We can illustrate this with an example. Consider two companies,
+WidgetCo and Gadgetly. Each company maintains a database
+that assigns each employee to one of twelve demographic groups.
+If we summarize the number of employees from each demographic group
+in each department, we might get something that looks like::
+
+    import pandas as pd
+
+    df_company_demographics = pd.DataFrame(
+        [
+            ['WidgetCo', 'Administration', 0, 14, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+            ['WidgetCo', 'Engineering', 100, 7, 6, 1, 5, 1, 0, 1, 22, 12, 0, 0],
+            ['WidgetCo', 'Executive', 12, 2, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0],
+            ['WidgetCo', 'Human Resources', 2, 12, 0, 2, 0, 2, 0, 0, 0, 3, 0, 0],
+            ['WidgetCo', 'Legal', 9, 3, 0, 0, 0, 0, 0, 0, 2, 2, 0, 0 ],
+            ['WidgetCo', 'Marketing', 5, 19, 0, 0, 0, 1, 0, 0, 0, 4, 0, 0],
+            ['WidgetCo', 'Manufacturing', 4, 2, 86, 4, 117, 9, 0, 0, 3, 0, 0, 0],
+            ['WidgetCo', 'Sales', 24, 8, 0, 2, 0, 4, 0, 0, 0, 0, 0, 0],
+
+            ['Gadgetly', 'Administration', 1, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+            ['Gadgetly', 'Engineering', 22, 3, 1, 0, 0, 0, 0, 0, 12, 3, 0, 0],
+            ['Gadgetly', 'Executive', 5, 1, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0],
+            ['Gadgetly', 'Human Resources', 0, 2, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+            ['Gadgetly', 'Legal', 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0 ],
+            ['Gadgetly', 'Marketing', 1, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+            ['Gadgetly', 'Operations', 2, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0],
+        ],
+        columns=[
+            'company', 'department',
+            'W-NHL-M', 'W-NHL-F', 'W-HL-M', 'W-HL-F',
+            'B-NHL-M', 'B-NHL-F', 'B-HL-M', 'B-HL-F',
+            'A-NHL-M', 'A-NHL-F', 'A-HL-M', 'A-HL-F',
+        ]
+    )
+
+We wrote it as a data frame initialization to make it easy for you to
+copy and paste if you want to try the example yourself. The data looks
+like::
+
+         company       department  W-NHL-M  W-NHL-F  W-HL-M  W-HL-F  B-NHL-M  B-NHL-F  B-HL-M  B-HL-F  A-NHL-M  A-NHL-F  A-HL-M  A-HL-F
+    0   WidgetCo   Administration        0       14       0       0        0        0       0       0        0        1       0       0
+    1   WidgetCo      Engineering      100        7       6       1        5        1       0       1       22       12       0       0
+    2   WidgetCo        Executive       12        2       0       0        0        0       0       0        3        0       0       0
+    3   WidgetCo  Human Resources        2       12       0       2        0        2       0       0        0        3       0       0
+    4   WidgetCo            Legal        9        3       0       0        0        0       0       0        2        2       0       0
+    5   WidgetCo        Marketing        5       19       0       0        0        1       0       0        0        4       0       0
+    6   WidgetCo    Manufacturing        4        2      86       4      117        9       0       0        3        0       0       0
+    7   WidgetCo            Sales       24        8       0       2        0        4       0       0        0        0       0       0
+    8   Gadgetly   Administration        1        3       0       0        0        1       0       0        0        0       0       0
+    9   Gadgetly      Engineering       22        3       1       0        0        0       0       0       12        3       0       0
+    10  Gadgetly        Executive        5        1       0       0        0        0       0       0        2        0       0       0
+    11  Gadgetly  Human Resources        0        2       0       0        0        0       0       0        0        1       0       0
+    12  Gadgetly            Legal        1        1       0       0        0        0       0       0        1        0       0       0
+    13  Gadgetly        Marketing        1        3       0       0        0        0       0       0        0        1       0       0
+    14  Gadgetly       Operations        2        1       0       1        0        0       0       0        1        0       0       0
+
+Now what happens if we compute the diversity of each company and the
+integration of each company over its departments? The code is simply::
+
+    from divintseg import di
+
+    df_company_di = di(df_company_demographics, by='company', over='department')
+
+The result is::
+
+              diversity  integration
+    company
+    Gadgetly       0.69         0.60
+    WidgetCo       0.80         0.55
+
+Taken as a whole company, WidgetCo is more diverse than
+Gadgetly, by a score of ``0.80`` to ``0.69``. Gadgetley has lower
+diversity in part because there are five
+demographic groups of which it has no employees at all, and three
+more of which it has only one employee. 
+
+But if we look at integration, a more complex story emerges. WidgetCo
+is actually less integrated than Gadgetly. Their integration is much
+lower than their diversity. Why? It is because there are demographic
+groups whose members are very heavily concentrated in one or two
+departments. The company has a lot of different people from different
+demographic groups, but many of them see mostly members of their own
+group in the department they work in. The company is segregated by
+department, not integrated.
+
+Examples like this are why we believe that anywhere we want to look
+at diversity we should look at integration too. Otherwise we might
+be missing important parts of the story.
+
 .. toctree::
    :maxdepth: 1
    :hidden:
