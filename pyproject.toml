@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "divintseg"
-version = "0.2.5"
+version = "0.3.0"
 description = "Tools for computing diversity, integration and segregation metrics"
 license = "HL3-CL-ECO-EXTR-FFD-LAW-MIL-SV"
 authors = ["Darren Vengroff"]
@@ -16,7 +16,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.9"
 numpy = "^1.23.2"
-pandas = "^1.4.4"
+pandas = "^1.5.3"
 genbadge = {extras = ["all"], version = "^1.1.0"}
 sphinx-rtd-theme = { version = "1.0.0", optional = true }
 sphinx-copybutton = { version = "^0.5.1", optional = true }
