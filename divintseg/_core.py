@@ -284,8 +284,7 @@ def di(
 
 
 def dissimilarity(
-    df_communities: pd.DataFrame,
-    df_reference: pd.DataFrame
+    df_communities: pd.DataFrame, df_reference: pd.DataFrame
 ) -> pd.Series:
     """
     Compute the dissimilarity index of one or more communities
@@ -316,6 +315,6 @@ def dissimilarity(
 
     df_abs_differences = abs(df_community_fractions.sub(df_reference_fractions))
 
-    df_dissimilarity_index = 0.5 * df_abs_differences.sum(axis='columns')
+    df_dissimilarity_index = 0.5 * df_abs_differences.sum(axis="columns")
 
     return df_dissimilarity_index

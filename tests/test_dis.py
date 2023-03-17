@@ -372,13 +372,9 @@ class ZeroPopulationTestCase(unittest.TestCase):
 
 
 class DissimilarityTestCase(unittest.TestCase):
-
     def setUp(self) -> None:
         self.df_reference = pd.DataFrame(
-            [
-                [10.0, 20.0, 30.0, 40.0]
-            ],
-            columns=['A', 'B', 'C', 'D']
+            [[10.0, 20.0, 30.0, 40.0]], columns=["A", "B", "C", "D"]
         )
 
     def test_self_dissimilarity(self):
@@ -400,7 +396,7 @@ class DissimilarityTestCase(unittest.TestCase):
 
     def test_one_group(self):
         """Test when all of the population is in a single group."""
-        reference_total = self.df_reference.sum(axis='columns').iloc[0]
+        reference_total = self.df_reference.sum(axis="columns").iloc[0]
 
         # Try the non-zero value in each possible position.
 
@@ -410,9 +406,11 @@ class DissimilarityTestCase(unittest.TestCase):
             for kk in range(1, 10):
                 df_test = pd.DataFrame(
                     [
-                        ([0] * ii) + [kk] + ([0] * (len(self.df_reference.columns) - ii - 1))
+                        ([0] * ii)
+                        + [kk]
+                        + ([0] * (len(self.df_reference.columns) - ii - 1))
                     ],
-                    columns=self.df_reference.columns
+                    columns=self.df_reference.columns,
                 )
 
                 dissimilarity_index = dissimilarity(df_test, self.df_reference)
@@ -422,7 +420,7 @@ class DissimilarityTestCase(unittest.TestCase):
                 self.assertAlmostEqual(
                     1.0 - self.df_reference.iloc[0, ii] / reference_total,
                     dissimilarity_index.iloc[0],
-                    places=10
+                    places=10,
                 )
 
 
