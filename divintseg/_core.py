@@ -313,7 +313,7 @@ def dissimilarity(
     df_community_fractions = df_communities.div(community_totals, axis="rows")
     df_reference_fractions = df_reference / reference_total
 
-    df_abs_differences = abs(df_community_fractions.sub(df_reference_fractions))
+    df_abs_differences = abs(df_community_fractions.sub(df_reference_fractions.iloc[0]))
 
     df_dissimilarity_index = 0.5 * df_abs_differences.sum(axis="columns")
 

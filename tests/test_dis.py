@@ -403,23 +403,26 @@ class DissimilarityTestCase(unittest.TestCase):
         for ii in range(len(self.df_reference.columns)):
             # Doesn't matter how many are in the constant-sized
             # population.
-            for kk in range(1, 10):
-                df_test = pd.DataFrame(
-                    [
-                        ([0] * ii)
-                        + [kk]
-                        + ([0] * (len(self.df_reference.columns) - ii - 1))
-                    ],
-                    columns=self.df_reference.columns,
-                )
+            df_test = pd.DataFrame(
+                [
+                    ([0] * ii)
+                    + [test_population]
+                    + ([0] * (len(self.df_reference.columns) - ii - 1))
+                    for test_population in range(1, 10)
+                ],
+                columns=self.df_reference.columns,
+            )
 
-                dissimilarity_index = dissimilarity(df_test, self.df_reference)
+            dissimilarity_index = dissimilarity(df_test, self.df_reference)
 
-                # The error is based on the fraction of the
-                # reference population in the chosen column.
+            # The error is based on the fraction of the
+            # reference population in the chosen column.
+            # It does not matter what the total test
+            # population was. It was just in one group (ii).
+            for kk in range(9):
                 self.assertAlmostEqual(
                     1.0 - self.df_reference.iloc[0, ii] / reference_total,
-                    dissimilarity_index.iloc[0],
+                    dissimilarity_index.iloc[kk],
                     places=10,
                 )
 
