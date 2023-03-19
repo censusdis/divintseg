@@ -281,3 +281,40 @@ def di(
         df_di["segregation"] = 1.0 - df_di["integration"]
 
     return df_di
+
+
+def dissimilarity(
+    df_communities: pd.DataFrame, df_reference: pd.DataFrame
+) -> pd.Series:
+    """
+    Compute the dissimilarity index of one or more communities
+    relative to a reference community.
+
+    Parameters
+    ----------
+    df_communities
+        The communities. This is a :py:class:`~pd.DataFrame` with
+        each row representing a community and each column
+        representing a group.
+    df_reference
+        The reference community. It should be a single row with
+        a column with the reference population of each group.
+    Returns
+    -------
+        The dissimilarity index of the each community relative to the reference
+        commmunity.
+    """
+    if len(df_reference.index) != 1:
+        raise ValueError("Reference community should have a single row.")
+
+    community_totals = df_communities.sum(axis="columns")
+    reference_total = df_reference.sum(axis="columns").iloc[0]
+
+    df_community_fractions = df_communities.div(community_totals, axis="rows")
+    df_reference_fractions = df_reference / reference_total
+
+    df_abs_differences = abs(df_community_fractions.sub(df_reference_fractions.iloc[0]))
+
+    df_dissimilarity_index = 0.5 * df_abs_differences.sum(axis="columns")
+
+    return df_dissimilarity_index

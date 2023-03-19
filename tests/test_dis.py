@@ -4,7 +4,7 @@ import unittest
 
 import pandas as pd
 
-from divintseg import di, diversity, integration, segregation
+from divintseg import di, diversity, integration, segregation, dissimilarity
 
 
 class DfTestCase(unittest.TestCase):
@@ -369,6 +369,62 @@ class ZeroPopulationTestCase(unittest.TestCase):
         df_expected = df_expected.set_index("subregion")
 
         self.assertTrue((df_expected == df_di).any().any())
+
+
+class DissimilarityTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        self.df_reference = pd.DataFrame(
+            [[10.0, 20.0, 30.0, 40.0]], columns=["A", "B", "C", "D"]
+        )
+
+    def test_self_dissimilarity(self):
+        """A population should be perfectly similar to itself."""
+        self_dissimilarity = dissimilarity(self.df_reference, self.df_reference)
+
+        self.assertEqual(1, len(self_dissimilarity))
+        self.assertEqual(0.0, self_dissimilarity.iloc[0])
+
+    def test_similar(self):
+        """Test perfect similarity."""
+        # A smaller community with exactly the same ratios.
+        df_similar = self.df_reference * 0.5
+
+        dissimilarity_index = dissimilarity(df_similar, self.df_reference)
+
+        self.assertEqual(1, len(dissimilarity_index))
+        self.assertEqual(0.0, dissimilarity_index.iloc[0])
+
+    def test_one_group(self):
+        """Test when all of the population is in a single group."""
+        reference_total = self.df_reference.sum(axis="columns").iloc[0]
+
+        # Try the non-zero value in each possible position.
+
+        for ii in range(len(self.df_reference.columns)):
+            # Doesn't matter how many are in the constant-sized
+            # population.
+            df_test = pd.DataFrame(
+                [
+                    ([0] * ii)
+                    + [test_population]
+                    + ([0] * (len(self.df_reference.columns) - ii - 1))
+                    for test_population in range(1, 10)
+                ],
+                columns=self.df_reference.columns,
+            )
+
+            dissimilarity_index = dissimilarity(df_test, self.df_reference)
+
+            # The error is based on the fraction of the
+            # reference population in the chosen column.
+            # It does not matter what the total test
+            # population was. It was just in one group (ii).
+            for kk in range(9):
+                self.assertAlmostEqual(
+                    1.0 - self.df_reference.iloc[0, ii] / reference_total,
+                    dissimilarity_index.iloc[kk],
+                    places=10,
+                )
 
 
 if __name__ == "__main__":
