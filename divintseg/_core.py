@@ -1,6 +1,6 @@
 # Copyright (c) 2022 Darren Erik Vengroff
 
-from typing import Any, Iterable, Optional, Tuple, Union
+from typing import Any, Iterable, Mapping, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -284,11 +284,15 @@ def di(
 
 
 def dissimilarity(
-    df_communities: pd.DataFrame, df_reference: pd.DataFrame
+    df_communities: pd.DataFrame,
+    reference: Union[pd.DataFrame, Mapping[str, Union[int, float]]],
 ) -> pd.Series:
     """
-    Compute the dissimilarity index of one or more communities
-    relative to a reference community.
+    Compute the dissimilarity index of one or more communities relative to a reference community.
+
+    If you want compute dissimilarity or similarity many times against a
+    common reference, then creating at :py:class:`~SimularityReference`
+    is a more efficient option.
 
     Parameters
     ----------
@@ -296,25 +300,125 @@ def dissimilarity(
         The communities. This is a :py:class:`~pd.DataFrame` with
         each row representing a community and each column
         representing a group.
-    df_reference
+    reference
         The reference community. It should be a single row with
         a column with the reference population of each group.
     Returns
     -------
         The dissimilarity index of the each community relative to the reference
-        commmunity.
+        community.
     """
-    if len(df_reference.index) != 1:
-        raise ValueError("Reference community should have a single row.")
+    return SimilarityReference(reference).dissimilarity(df_communities)
 
-    community_totals = df_communities.sum(axis="columns")
-    reference_total = df_reference.sum(axis="columns").iloc[0]
 
-    df_community_fractions = df_communities.div(community_totals, axis="rows")
-    df_reference_fractions = df_reference / reference_total
+def similarity(
+    df_communities: pd.DataFrame,
+    reference: Union[pd.DataFrame, Mapping[str, Union[int, float]]],
+) -> pd.Series:
+    """
+    Compute the similarity index of one or more communities relative to a reference community.
 
-    df_abs_differences = abs(df_community_fractions.sub(df_reference_fractions.iloc[0]))
+    Note that similarity is just one minus dissimilarity.
 
-    df_dissimilarity_index = 0.5 * df_abs_differences.sum(axis="columns")
+    If you want compute dissimilarity or similarity many times against a
+    common reference, then creating at :py:class:`~SimularityReference`
+    is a more efficient option.
 
-    return df_dissimilarity_index
+    Parameters
+    ----------
+    df_communities
+        The communities. This is a :py:class:`~pd.DataFrame` with
+        each row representing a community and each column
+        representing a group.
+    reference
+        The reference community. It should be a single row with
+        a column with the reference population of each group.
+    Returns
+    -------
+        The similarity of the each community relative to the reference
+        community.
+    """
+    return SimilarityReference(reference).similarity(df_communities)
+
+
+class SimilarityReference:
+    """
+    An object that computes dissimilarty from a reference.
+
+    Parameters
+    ----------
+    reference
+        The reference community. It should be a mapping from
+        name to count or a dataframe with a single row with
+        a column with the reference population of each group.
+
+    """
+
+    def __init__(
+        self,
+        reference: Union[pd.DataFrame, Mapping[str, Union[int, float]]],
+    ):
+        if isinstance(reference, pd.DataFrame):
+            self._df_reference = reference
+        else:
+            self._df_reference = pd.DataFrame([reference])
+
+        if len(self._df_reference.index) != 1:
+            raise ValueError("Reference community should have a single row.")
+
+        self._reference_total = self._df_reference.sum(axis="columns").iloc[0]
+        self._df_reference_fractions = self._df_reference / self._reference_total
+
+    def dissimilarity(
+        self,
+        df_communities: pd.DataFrame,
+    ) -> pd.Series:
+        """
+        Compute the dissimilarity index of one or more communities
+        relative to a reference community.
+
+        Parameters
+        ----------
+        df_communities
+            The communities. This is a :py:class:`~pd.DataFrame` with
+            each row representing a community and each column
+            representing a group.
+        Returns
+        -------
+            The dissimilarity index of the each community relative to the reference
+            community.
+        """
+        community_totals = df_communities.sum(axis="columns")
+
+        df_community_fractions = df_communities.div(community_totals, axis="rows")
+
+        df_abs_differences = abs(
+            df_community_fractions.sub(self._df_reference_fractions.iloc[0])
+        )
+
+        df_dissimilarity_index = 0.5 * df_abs_differences.sum(axis="columns")
+
+        return df_dissimilarity_index
+
+    def similarity(
+        self,
+        df_communities: pd.DataFrame,
+    ) -> pd.Series:
+        """
+        Compute the representation index of one or more communities.
+
+        If `sim_ref` is a `SimilarityReference`, then `sim_ref.similarity(communities)-
+        is equal to `1.0 - sim_ref.similarity(communities)`.
+
+        Parameters
+        ----------
+        df_communities
+            The communities. This is a :py:class:`~pd.DataFrame` with
+            each row representing a community and each column
+            representing a group.
+        Returns
+        -------
+            The dissimilarity index of the each community relative to the reference
+            community.
+        """
+        return 1.0 - self.dissimilarity(df_communities)
