@@ -63,7 +63,7 @@ class IterableTestCase(unittest.TestCase):
 
     def test_array(self):
         """Test diversity of an array."""
-        div =dis.diversity(self.a)
+        div = dis.diversity(self.a)
 
         self.assertAlmostEqual(self.div, div, places=10)
 
@@ -71,7 +71,7 @@ class IterableTestCase(unittest.TestCase):
         """Test diversity of a pandas Series."""
         s = pd.Series(self.a)
 
-        div =dis.diversity(s)
+        div = dis.diversity(s)
 
         self.assertAlmostEqual(self.div, div, places=10)
 
@@ -129,7 +129,7 @@ class IntegrationTestCase(unittest.TestCase):
 
     def test_integration_drop_nothing(self):
         """Test integration dropping other cols when there are none to drop."""
-        df_int =dis.integration(self.df, by="region", drop_non_numeric=True)
+        df_int = dis.integration(self.df, by="region", drop_non_numeric=True)
 
         for region in df_int.index:
             self.assertAlmostEqual(

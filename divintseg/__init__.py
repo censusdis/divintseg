@@ -15,4 +15,12 @@ from ._core import (
     SimilarityReference,
 )  # noqa: F401
 
-__all__ = ("di", "diversity", "integration", "segregation", "dissimilarity", "similarity", "SimilarityReference")
+__all__ = (
+    "di",
+    "diversity",
+    "integration",
+    "segregation",
+    "dissimilarity",
+    "similarity",
+    "SimilarityReference",
+)
