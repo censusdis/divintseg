@@ -466,7 +466,8 @@ class DissimilarityCensusTestCase(unittest.TestCase):
             frac = v / total
             homogenous = {key: 100 if key == k else 0 for key in self.us.keys()}
             similarity = dis.similarity(self.df_us, homogenous)
-            print(frac, k, similarity)
+            self.assertEqual((1,), similarity.shape)
+            self.assertAlmostEqual(frac, similarity.iloc[0], places=5)
 
     def test_tract(self):
         df_tract = pd.DataFrame(
