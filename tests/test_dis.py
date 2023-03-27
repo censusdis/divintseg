@@ -460,6 +460,14 @@ class DissimilarityCensusTestCase(unittest.TestCase):
             ]
         )
 
+    def test_one_group_only(self):
+        total = sum(self.us.values())
+        for k, v in self.us.items():
+            frac = v / total
+            homogenous = {key: 100 if key == k else 0 for key in self.us.keys()}
+            similarity = dis.similarity(self.df_us, homogenous)
+            print(frac, k, similarity)
+
     def test_tract(self):
         df_tract = pd.DataFrame(
             [
