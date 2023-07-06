@@ -427,8 +427,8 @@ class SimilarityReference:
 def isolation(
     df_communities: pd.DataFrame,
     group_name: str,
-    by=None,
-    over=None,
+    by: str,
+    over: str,
 ) -> pd.DataFrame:
     """
     Compute the isolation of a group in a community. Isolation is the
@@ -541,32 +541,25 @@ def isolation(
     Note that the implentation may not do this math exactly as
     specified here, but it will do something equivalent.
     """
-    if by is None:
-        df_communities["REGION"] = "Region " + df_communities.index.astype(str)
-        by = "REGION"
-    if over is None:
-        df_communities["SUBREGION"] = "Subregion " + df_communities.index.astype(str)
-        over = "SUBREGION"
-    else:
-        subregion_groups = df_communities.groupby(over)
-        for _, group in subregion_groups:
-            if len(group[by].unique()) > 1:
-                raise ValueError("Subregions must have the same region")
-                # If 2 subregions are the same, their region must be the same
-    df_by = df_communities.groupby(by).sum(numeric_only=True)[group_name]
-    df_over = df_communities.groupby(over).sum(numeric_only=True)
-    likelihood = df_over[group_name] / df_over.sum(axis="columns")
+
+    df_grouped = df_communities.groupby([by, over], as_index=False).sum(
+        numeric_only=True
+    )
+    likelihood = df_grouped[group_name] / df_grouped.sum(
+        axis="columns", numeric_only=True
+    )
 
     def get_region_pop(row):
-        # Used with apply to add region and region population columns
-        row_num = df_communities.loc[df_communities[over] == row.name]
-        region = row_num[by].values[0]
-        row[by] = region
-        row["Region Population"] = df_by[region]
+        # Used with apply to add region population columns
+        row["Region Population"] = df_grouped[df_grouped[by] == row[by]].sum(
+            numeric_only=True
+        )[group_name]
         return row
-    df_over = df_over.apply(get_region_pop, axis=1)
-    frac_in_region = df_over[group_name]/df_over["Region Population"]
-    df_over["Product"] = likelihood*frac_in_region
-    df_over = df_over.groupby(by).sum(numeric_only=True).reset_index()
-    df_final = pd.DataFrame({by: df_by.index, group_name: df_over["Product"]})
-    return df_final
+
+    df_grouped = df_grouped.apply(get_region_pop, axis=1)
+    frac_in_region = df_grouped[group_name] / df_grouped["Region Population"]
+    df_grouped["Product"] = likelihood * frac_in_region
+    product_sum = df_grouped.groupby(by)["Product"].sum().reset_index(drop=True)
+    final_df = pd.DataFrame(df_communities[by].unique(), columns=[by])
+    final_df[group_name] = product_sum
+    return final_df
