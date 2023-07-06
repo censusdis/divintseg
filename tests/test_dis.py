@@ -598,5 +598,65 @@ class DissimilarityCensusTestCase(unittest.TestCase):
                 self.assertAlmostEqual(1.0 - ds1, sim, places=5)
 
 
+class IsolationTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        self.basic_df = pd.DataFrame(
+            [
+                [100, 0],
+                [0, 100]
+            ],
+            columns=['S', 'T']
+        )
+        self.documentation_df = pd.DataFrame(
+            [
+                ['Region 1', 'Subregion A', 100, 0],
+                ['Region 1', 'Subregion B', 50, 50],
+                ['Region 2', 'Subregion C', 0, 100],
+                ['Region 2', 'Subregion D', 0, 50],
+                ['Region 2', 'Subregion E', 10, 90]
+            ],
+            columns=['REGION', 'SUBREGION', 'S', 'T']
+        )
+        self.multiple_subregions_df = pd.DataFrame(
+            [
+                ['Region 1', 'Subregion A', 100, 0],
+                ['Region 1', 'Subregion B', 50, 0],
+                ['Region 1', 'Subregion B', 0, 50],
+                ['Region 2', 'Subregion C', 0, 100],
+                ['Region 2', 'Subregion D', 0, 50],
+                ['Region 2', 'Subregion E', 10, 0],
+                ['Region 2', 'Subregion E', 0, 90]
+            ],
+            columns=['REGION', 'SUBREGION', 'S', 'T']
+        )
+        self.flawed_subregions_df = pd.DataFrame(
+            [
+                ['Region 1', 'Subregion A', 100, 0],
+                ['Region 2', 'Subregion A', 0, 100]
+            ],
+            columns=['REGION', 'SUBREGION', 'S', 'T']
+        )
+
+    def test_isolation(self):
+        pd.testing.assert_frame_equal(dis.isolation(self.basic_df, "S"), pd.DataFrame(
+            [
+                ['Region 0', 1.0],
+                ['Region 1', 0.0]
+            ],
+            columns=['REGION', 'S']
+        ))
+        pd.testing.assert_frame_equal(dis.isolation(self.documentation_df, "S", "REGION", "SUBREGION"), pd.DataFrame(
+            [
+                ['Region 1', 0.83333],
+                ['Region 2', 0.1]
+            ],
+            columns=['REGION', 'S']
+        ))
+        pd.testing.assert_frame_equal(dis.isolation(self.documentation_df, "S", "REGION", "SUBREGION"),
+                                      dis.isolation(self.multiple_subregions_df, "S", "REGION", "SUBREGION"))
+        with self.assertRaises(ValueError):
+            dis.isolation(self.flawed_subregions_df, "S", "REGION", "SUBREGION")
+
+
 if __name__ == "__main__":
     unittest.main()

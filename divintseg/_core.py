@@ -487,7 +487,7 @@ def isolation(
     ... isolation(df, "S", by="REGION", over="SUBREGION")
          REGION        S
     0  Region 1  0.83333
-    2  Region 2      0.1
+    1  Region 2      0.1
 
     Let's look at what this example computed. First, we have
     to see how likely each person in group S is to see other
@@ -503,9 +503,9 @@ def isolation(
     +----------+-------------+-----------------------+
     | Region 2 | Subregion C | 0 / (0 + 100) = 0.0   |
     +----------+-------------+-----------------------+
-    | Region 2 | Subregion C | 0 / (0 + 50) = 0.0    |
+    | Region 2 | Subregion D | 0 / (0 + 50) = 0.0    |
     +----------+-------------+-----------------------+
-    | Region 2 | Subregion C | 10 / (10 + 90) = 0.1  |
+    | Region 2 | Subregion E | 10 / (10 + 90) = 0.1  |
     +----------+-------------+-----------------------+
 
     Next, we can compute the fraction of all S's in
@@ -521,9 +521,9 @@ def isolation(
     +----------+-------------+--------------------------------+
     | Region 2 | Subregion C | 0 / 10 = 0.0000                |
     +----------+-------------+--------------------------------+
-    | Region 2 | Subregion C | 0 / 10 = 0.0000                |
+    | Region 2 | Subregion D | 0 / 10 = 0.0000                |
     +----------+-------------+--------------------------------+
-    | Region 2 | Subregion C | 10 / 10 = 1.0000               |
+    | Region 2 | Subregion E | 10 / 10 = 1.0000               |
     +----------+-------------+--------------------------------+
 
     Finally, for each subregion, we multiply these together and
@@ -541,4 +541,32 @@ def isolation(
     Note that the implentation may not do this math exactly as
     specified here, but it will do something equivalent.
     """
-    raise NotImplemented("This function is coming soon!")
+    if by is None:
+        df_communities["REGION"] = "Region " + df_communities.index.astype(str)
+        by = "REGION"
+    if over is None:
+        df_communities["SUBREGION"] = "Subregion " + df_communities.index.astype(str)
+        over = "SUBREGION"
+    else:
+        subregion_groups = df_communities.groupby(over)
+        for _, group in subregion_groups:
+            if len(group[by].unique()) > 1:
+                raise ValueError("Subregions must have the same region")
+                # If 2 subregions are the same, their region must be the same
+    df_by = df_communities.groupby(by).sum(numeric_only=True)[group_name]
+    df_over = df_communities.groupby(over).sum(numeric_only=True)
+    likelihood = df_over[group_name] / df_over.sum(axis="columns")
+
+    def get_region_pop(row):
+        # Used with apply to add region and region population columns
+        row_num = df_communities.loc[df_communities[over] == row.name]
+        region = row_num[by].values[0]
+        row[by] = region
+        row["Region Population"] = df_by[region]
+        return row
+    df_over = df_over.apply(get_region_pop, axis=1)
+    frac_in_region = df_over[group_name]/df_over["Region Population"]
+    df_over["Product"] = likelihood*frac_in_region
+    df_over = df_over.groupby(by).sum(numeric_only=True).reset_index()
+    df_final = pd.DataFrame({by: df_by.index, group_name: df_over["Product"]})
+    return df_final
