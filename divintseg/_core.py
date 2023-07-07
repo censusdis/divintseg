@@ -548,16 +548,10 @@ def isolation(
     likelihood = df_grouped[group_name] / df_grouped.sum(
         axis="columns", numeric_only=True
     )
-
-    def get_region_pop(row):
-        # Used with apply to add region population columns
-        row["Region Population"] = df_grouped[df_grouped[by] == row[by]].sum(
-            numeric_only=True
-        )[group_name]
-        return row
-
-    df_grouped = df_grouped.apply(get_region_pop, axis=1)
-    frac_in_region = df_grouped[group_name] / df_grouped["Region Population"]
+    region_population = df_grouped.groupby(by)[group_name].sum(numeric_only=True)
+    frac_in_region = df_grouped[group_name] / region_population[
+        df_grouped[by]
+    ].reset_index(drop=True)
     df_grouped["Product"] = likelihood * frac_in_region
     product_sum = df_grouped.groupby(by)["Product"].sum().reset_index(drop=True)
     final_df = pd.DataFrame(df_communities[by].unique(), columns=[by])
