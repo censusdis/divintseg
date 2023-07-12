@@ -422,3 +422,138 @@ class SimilarityReference:
             community.
         """
         return 1.0 - self.dissimilarity(df_communities)
+
+
+def isolation(
+    df_communities: pd.DataFrame,
+    group_name: str,
+    by: str,
+    over: str,
+) -> pd.DataFrame:
+    """
+    Compute the isolation of a group in a community. Isolation is the
+    average, over all members of a group in a community, of the proportion
+    of the smaller area they reside in that are not members of their group.
+
+    Parameters
+    ----------
+    df_communities
+        A :py:class:`pd.DataFrame` of communities.
+    group_name
+        The name of the group (name of a column in `df_communities`)
+        whose isolation we wish to compute.
+    by
+        The column or index to group by in order to
+        partition the rows into communities.
+    over
+        The column to group by in order to partition
+        the rows of each community into smaller
+        aggregation units where the base diversity will
+        be computed. If `None` then each row is assumed
+        to represent a different community.
+
+    Returns
+    -------
+        A dataframe with one row for each unique value of the `by`
+        column indicating the isolation of the `group_name` column
+        with respect to all of the other columns in the data frame.
+
+    Examples
+    --------
+
+    >>> import pandas as pd
+    ...
+    ... df = pd.DataFrame(
+    ...     [
+    ...         ['Region 1', 'Subregion A', 100, 0],
+    ...         ['Region 1', 'Subregion B', 50, 50],
+    ...         ['Region 2', 'Subregion C', 0, 100],
+    ...         ['Region 2', 'Subregion D', 0, 50],
+    ...         ['Region 2', 'Subregion E', 10, 90],
+    ...     ],
+    ...     columns=['REGION', 'SUBREGION', 'S', 'T']
+    ... )
+    ...
+    ... df
+         REGION    SUBREGION    S    T
+    0  Region 1  Subregion A  100    0
+    1  Region 1  Subregion B   50   50
+    2  Region 2  Subregion C    0  100
+    3  Region 2  Subregion D    0   50
+    4  Region 2  Subregion E   10   90
+
+    >>> from divintseg import isolation
+    ...
+    ... isolation(df, "S", by="REGION", over="SUBREGION")
+         REGION        S
+    0  Region 1  0.83333
+    1  Region 2      0.1
+
+    Let's look at what this example computed. First, we have
+    to see how likely each person in group S is to see other
+    members of their own group in their subregion. This is as
+    follows:
+
+    +----------+-------------+-----------------------+
+    | Region   | Subregion   | Likelihood of an S    |
+    +==========+=============+=======================+
+    | Region 1 | Subregion A | 100 / (100 + 0) = 1.0 |
+    +----------+-------------+-----------------------+
+    | Region 1 | Subregion B | 50 / (50 + 50) = 0.5  |
+    +----------+-------------+-----------------------+
+    | Region 2 | Subregion C | 0 / (0 + 100) = 0.0   |
+    +----------+-------------+-----------------------+
+    | Region 2 | Subregion D | 0 / (0 + 50) = 0.0    |
+    +----------+-------------+-----------------------+
+    | Region 2 | Subregion E | 10 / (10 + 90) = 0.1  |
+    +----------+-------------+-----------------------+
+
+    Next, we can compute the fraction of all S's in
+    each subregion of each region. There are 150 S's
+    in Region 1 and 10 S's in region 2, therefore, we have:
+
+    +----------+-------------+--------------------------------+
+    | Region   | Subregion   | Fraction of all As in Region   |
+    +==========+=============+================================+
+    | Region 1 | Subregion A | 100 / 150 = 0.6667             |
+    +----------+-------------+--------------------------------+
+    | Region 1 | Subregion B | 50 / 150 = 0.3333              |
+    +----------+-------------+--------------------------------+
+    | Region 2 | Subregion C | 0 / 10 = 0.0000                |
+    +----------+-------------+--------------------------------+
+    | Region 2 | Subregion D | 0 / 10 = 0.0000                |
+    +----------+-------------+--------------------------------+
+    | Region 2 | Subregion E | 10 / 10 = 1.0000               |
+    +----------+-------------+--------------------------------+
+
+    Finally, for each subregion, we multiply these together and
+    add them up the values for the subregions in each region.
+    For Region 1, we get
+
+    .. math::
+        (0.6667 * 1.0) + (0.3333 * 0.5) = 0.8333.
+
+    For Region 2, we get
+
+    .. math::
+        0.0 * 0.0 + 0.0 * 0.0 + 1.000 * 0.1 = 0.1.
+
+    Note that the implentation may not do this math exactly as
+    specified here, but it will do something equivalent.
+    """
+
+    df_grouped = df_communities.groupby([by, over], as_index=False).sum(
+        numeric_only=True
+    )
+    likelihood = df_grouped[group_name] / df_grouped.sum(
+        axis="columns", numeric_only=True
+    )
+    region_population = df_grouped.groupby(by)[group_name].sum(numeric_only=True)
+    frac_in_region = df_grouped[group_name] / region_population[
+        df_grouped[by]
+    ].reset_index(drop=True)
+    df_grouped["Product"] = likelihood * frac_in_region
+    product_sum = df_grouped.groupby(by)["Product"].sum().reset_index(drop=True)
+    final_df = pd.DataFrame(df_communities[by].unique(), columns=[by])
+    final_df[group_name] = product_sum
+    return final_df
