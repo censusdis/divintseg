@@ -449,8 +449,7 @@ def isolation(
         The column to group by in order to partition
         the rows of each community into smaller
         aggregation units where the base diversity will
-        be computed. If `None` then each row is assumed
-        to represent a different community.
+        be computed.
 
     Returns
     -------
@@ -557,3 +556,145 @@ def isolation(
     final_df = pd.DataFrame(df_communities[by].unique(), columns=[by])
     final_df[group_name] = product_sum
     return final_df
+
+
+def exposure(
+    df_communities: pd.DataFrame,
+    group_name: str,
+    by: str,
+    over: str,
+) -> pd.DataFrame:
+    """
+    Compute the exposure of a group in a community. Exposure measures a group's
+    average local exposure to members of another group.
+
+    Parameters
+    ----------
+    df_communities
+        A :py:class:`pd.DataFrame` of communities.
+    group_name
+        The name of the group (name of a column in `df_communities`)
+        whose exposure we wish to compute.
+    by
+        The column or index to group by in order to
+        partition the rows into communities.
+    over
+        The column to group by in order to partition
+        the rows of each community into smaller
+        aggregation units where the base diversity will
+        be computed.
+
+    Returns
+    -------
+        A dataframe with one row for each unique value of the `by`
+        column and one column for each unique value of the `over` column other
+        than `group_name` indicating the exposure of the `group_name` column
+        with respect to another `over` column in the data frame.
+
+    Example
+    --------
+
+    >>> import pandas as pd
+    ...
+    ... df = pd.DataFrame(
+    ...     [
+    ...         ['Region 1', 'Subregion A', 100, 0, 0],
+    ...         ['Region 1', 'Subregion B', 50, 50, 50],
+    ...         ['Region 2', 'Subregion C', 0, 100, 100],
+    ...         ['Region 2', 'Subregion D', 0, 50, 0],
+    ...         ['Region 2', 'Subregion E', 10, 90, 0],
+    ...     ],
+    ...     columns=['REGION', 'SUBREGION', 'A', 'B', 'C']
+    ... )
+    ...
+    ... df
+         REGION    SUBREGION    A    B    C
+    0  Region 1  Subregion A  100    0    0
+    1  Region 1  Subregion B   50   50   50
+    2  Region 2  Subregion C    0  110  100
+    3  Region 2  Subregion D    0   50    0
+    4  Region 2  Subregion E   10   90    0
+
+    >>> from divintseg import exposure
+    ...
+    ... exposure(df, "A", by="REGION", over="SUBREGION")
+         REGION        B       C
+    0  Region 1   0.3333  0.3333
+    1  Region 2    0.036       0
+
+
+    Row R and column C represents the exposure of `groupname` to C in region R:
+    the exposure of A to B is 0.036 in region 2.
+
+    Calculating the likelihood of A:
+
+    +----------+-------------+------------------------------+
+    | Region   | Subregion   | Likelihood of A              |
+    +==========+=============+==============================+
+    | Region 1 | Subregion A | 100 / (100 + 0 + 0) = 1      |
+    +----------+-------------+------------------------------+
+    | Region 1 | Subregion B | 50 / (50 + 50 + 50) = 0.3333 |
+    +----------+-------------+------------------------------+
+    | Region 2 | Subregion C | 0 / (0 + 110 + 100) = 0      |
+    +----------+-------------+------------------------------+
+    | Region 2 | Subregion D | 0 / (0 + 50 + 0) = 0         |
+    +----------+-------------+------------------------------+
+    | Region 2 | Subregion E | 10 / (10 + 90 + 0) = 0.1     |
+    +----------+-------------+------------------------------+
+
+    Computing the fraction of all B's in each subregion of each region:
+
+    +----------+-------------+--------------------------------+
+    | Region   | Subregion   | Fraction of all B's in Region  |
+    +==========+=============+================================+
+    | Region 1 | Subregion A | 0 / 50 = 0                     |
+    +----------+-------------+--------------------------------+
+    | Region 1 | Subregion B | 50 / 50 = 1                    |
+    +----------+-------------+--------------------------------+
+    | Region 2 | Subregion C | 110 / 250 = 0.44               |
+    +----------+-------------+--------------------------------+
+    | Region 2 | Subregion D | 50 / 250 = 0.2                 |
+    +----------+-------------+--------------------------------+
+    | Region 2 | Subregion E | 90 / 250 = 0.36                |
+    +----------+-------------+--------------------------------+
+
+    Multiplying and summing for the subregions in each region:
+
+    For Region 1, we get
+
+    .. math::
+        (1 * 0) + (0.3333 * 1) = 0.3333.
+
+    For Region 2, we get
+
+    .. math::
+        0 * 0.44 + 0 * 0.2 + 0.1 * 0.36 = 0.036.
+
+    Repeating the process for C:
+
+    +----------+-------------+--------------------------------+
+    | Region   | Subregion   | Fraction of all C's in Region  |
+    +==========+=============+================================+
+    | Region 1 | Subregion A | 0 / 50 = 0                     |
+    +----------+-------------+--------------------------------+
+    | Region 1 | Subregion B | 50 / 50 = 1                    |
+    +----------+-------------+--------------------------------+
+    | Region 2 | Subregion C | 100 / 100 = 1                  |
+    +----------+-------------+--------------------------------+
+    | Region 2 | Subregion D | 0 / 100 = 0                    |
+    +----------+-------------+--------------------------------+
+    | Region 2 | Subregion E | 0 / 100 = 0                    |
+    +----------+-------------+--------------------------------+
+
+    For Region 1, we get
+
+    .. math::
+        (1 * 0) + (0.3333 * 1) = 0.3333.
+
+    For Region 2, we get
+
+    .. math::
+        0 * 1 + 0 * 0 + 0.1 * 0 = 0.
+    """
+
+    raise NotImplementedError("Coming soon!")
