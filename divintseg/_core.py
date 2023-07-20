@@ -424,6 +424,41 @@ class SimilarityReference:
         return 1.0 - self.dissimilarity(df_communities)
 
 
+def likelihood_populationfrac_product(
+    df_grouped: pd.DataFrame, likelihood: pd.Series, by: str, group_name: str
+) -> pd.Series:
+    """
+    Helper function for isolation and exposure to multiply the likelihood series
+    and the population fraction.
+
+    Parameters
+    ----------
+    df_grouped
+        A :py:class:`pd.DataFrame` created by grouping over both `by` and `over.
+    likelihood
+        A :py:class:`pd.Series` representing the probability of picking a
+        specific group in a certain community.
+    by
+        The column or index to group by in order to
+        partition the rows into communities.
+    group_name
+        The name of the group of which to take the population fraction of, which
+        would then be multiplied with `likelihood`.
+
+    Returns
+    -------
+        A series containing `likelihood` multiplied element-wise with
+        the fraction of `group_name` in a certain region.
+    """
+    region_population = df_grouped.groupby(by)[group_name].sum(numeric_only=True)
+    frac_in_region = df_grouped[group_name] / region_population[
+        df_grouped[by]
+    ].reset_index(drop=True)
+    df_grouped["Product"] = likelihood * frac_in_region
+    product_sum = df_grouped.groupby(by)["Product"].sum().reset_index(drop=True)
+    return product_sum
+
+
 def isolation(
     df_communities: pd.DataFrame,
     group_name: str,
@@ -547,22 +582,19 @@ def isolation(
     likelihood = df_grouped[group_name] / df_grouped.sum(
         axis="columns", numeric_only=True
     )
-    region_population = df_grouped.groupby(by)[group_name].sum(numeric_only=True)
-    frac_in_region = df_grouped[group_name] / region_population[
-        df_grouped[by]
-    ].reset_index(drop=True)
-    df_grouped["Product"] = likelihood * frac_in_region
-    product_sum = df_grouped.groupby(by)["Product"].sum().reset_index(drop=True)
     final_df = pd.DataFrame(df_communities[by].unique(), columns=[by])
-    final_df[group_name] = product_sum
+    final_df[group_name] = likelihood_populationfrac_product(
+        df_grouped, likelihood, by, group_name
+    )
     return final_df
 
 
 def exposure(
     df_communities: pd.DataFrame,
-    group_name: str,
+    primary_group_name: str,
     by: str,
     over: str,
+    secondary_group_name: str = None,
 ) -> pd.DataFrame:
     """
     Compute the exposure of a group in a community. Exposure measures a group's
@@ -572,9 +604,10 @@ def exposure(
     ----------
     df_communities
         A :py:class:`pd.DataFrame` of communities.
-    group_name
+    primary_group_name
         The name of the group (name of a column in `df_communities`)
-        whose exposure we wish to compute.
+        whose exposure we wish to compute relative to the group specified
+        in `secondary_group_name`.
     by
         The column or index to group by in order to
         partition the rows into communities.
@@ -583,13 +616,20 @@ def exposure(
         the rows of each community into smaller
         aggregation units where the base diversity will
         be computed.
+    secondary_group_name
+        The name of the group whose exposure should be calculated relative to
+        `primary_group_name`. If None, every single group will have its
+        exposure calculated.
 
     Returns
     -------
         A dataframe with one row for each unique value of the `by`
-        column and one column for each unique value of the `over` column other
-        than `group_name` indicating the exposure of the `group_name` column
-        with respect to another `over` column in the data frame.
+        column and one column for each value of the `over` column other
+        than `primary_group_name` indicating the exposure of the
+        `primary_group_name` column with respect to another `over` column in
+        the data frame. If `secondary_group_name` is not None, the only column
+        in the returned dataframe will be the exposure of `primary_group_name`
+        to `secondary_group_name`.
 
     Example
     --------
@@ -600,7 +640,7 @@ def exposure(
     ...     [
     ...         ['Region 1', 'Subregion A', 100, 0, 0],
     ...         ['Region 1', 'Subregion B', 50, 50, 50],
-    ...         ['Region 2', 'Subregion C', 0, 100, 100],
+    ...         ['Region 2', 'Subregion C', 0, 110, 100],
     ...         ['Region 2', 'Subregion D', 0, 50, 0],
     ...         ['Region 2', 'Subregion E', 10, 90, 0],
     ...     ],
@@ -696,5 +736,23 @@ def exposure(
     .. math::
         0 * 1 + 0 * 0 + 0.1 * 0 = 0.
     """
-
-    raise NotImplementedError("Coming soon!")
+    df_grouped = df_communities.groupby([by, over], as_index=False).sum(
+        numeric_only=True
+    )
+    likelihood = df_grouped[primary_group_name] / df_grouped.sum(
+        axis="columns", numeric_only=True
+    )
+    if secondary_group_name is None:
+        pairwise_columns = df_grouped.select_dtypes(include="number").columns.tolist()
+        pairwise_columns.remove(primary_group_name)
+        final_df = pd.DataFrame(df_communities[by].unique(), columns=[by])
+        for col in pairwise_columns:
+            final_df[col] = likelihood_populationfrac_product(
+                df_grouped, likelihood, by, col
+            )
+        return final_df
+    final_df = pd.DataFrame(df_communities[by].unique(), columns=[by])
+    final_df[secondary_group_name] = likelihood_populationfrac_product(
+        df_grouped, likelihood, by, secondary_group_name
+    )
+    return final_df
