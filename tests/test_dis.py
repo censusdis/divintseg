@@ -741,5 +741,114 @@ class IsolationTestCase(unittest.TestCase):
         )
 
 
+class ExposureTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        self.no_exposure_df = pd.DataFrame(
+            [
+                ["Region 1", "Subregion A", 100, 0],
+                ["Region 2", "Subregion B", 0, 100],
+            ],
+            columns=["REGION", "SUBREGION", "A", "B"],
+        )
+        self.full_exposure_df = pd.DataFrame(
+            [
+                ["Region 1", "Subregion A", 100, 100],
+                ["Region 2", "Subregion B", 100, 100],
+            ],
+            columns=["REGION", "SUBREGION", "A", "B"],
+        )
+        self.documentation_df = pd.DataFrame(
+            [
+                ["Region 1", "Subregion A", 100, 0, 0],
+                ["Region 1", "Subregion B", 50, 50, 50],
+                ["Region 2", "Subregion C", 0, 110, 100],
+                ["Region 2", "Subregion D", 0, 50, 0],
+                ["Region 2", "Subregion E", 10, 90, 0],
+            ],
+            columns=["REGION", "SUBREGION", "A", "B", "C"],
+        )
+        self.multiple_subregions_df = pd.DataFrame(
+            [
+                ["Region 1", "Subregion A", 25, 0, 0],
+                ["Region 1", "Subregion A", 25, 0, 0],
+                ["Region 1", "Subregion A", 25, 0, 0],
+                ["Region 1", "Subregion A", 25, 0, 0],
+                ["Region 1", "Subregion B", 50, 0, 0],
+                ["Region 1", "Subregion B", 0, 50, 0],
+                ["Region 1", "Subregion B", 0, 0, 50],
+                ["Region 2", "Subregion C", 0, 110, 0],
+                ["Region 2", "Subregion C", 0, 0, 100],
+                ["Region 2", "Subregion D", 0, 50, 0],
+                ["Region 2", "Subregion E", 10, 0, 0],
+                ["Region 2", "Subregion E", 0, 90, 0],
+            ],
+            columns=["REGION", "SUBREGION", "A", "B", "C"],
+        )
+
+    def test_exposure(self):
+        pd.testing.assert_frame_equal(
+            dis.exposure(self.no_exposure_df, "A", "REGION", "SUBREGION"),
+            pd.DataFrame(
+                [["Region 1", 0.0], ["Region 2", 0.0]], columns=["REGION", "B"]
+            ),
+        )
+        pd.testing.assert_frame_equal(
+            dis.exposure(self.full_exposure_df, "A", "REGION", "SUBREGION"),
+            pd.DataFrame(
+                [["Region 1", 0.5], ["Region 2", 0.5]], columns=["REGION", "B"]
+            ),
+        )
+        pd.testing.assert_frame_equal(
+            dis.exposure(self.documentation_df, "A", "REGION", "SUBREGION"),
+            pd.DataFrame(
+                [["Region 1", 0.333333, 0.333333], ["Region 2", 0.036, 0]],
+                columns=["REGION", "B", "C"],
+            ),
+        )
+        pd.testing.assert_frame_equal(
+            dis.exposure(
+                self.documentation_df,
+                "A",
+                "REGION",
+                "SUBREGION",
+                secondary_group_name="B",
+            ),
+            pd.DataFrame(
+                [["Region 1", 0.333333], ["Region 2", 0.036]], columns=["REGION", "B"]
+            ),
+        )
+        pd.testing.assert_frame_equal(
+            dis.exposure(self.multiple_subregions_df, "A", "REGION", "SUBREGION"),
+            pd.DataFrame(
+                [["Region 1", 0.333333, 0.333333], ["Region 2", 0.036, 0]],
+                columns=["REGION", "B", "C"],
+            ),
+        )
+        pd.testing.assert_frame_equal(
+            dis.exposure(
+                self.multiple_subregions_df,
+                "A",
+                "REGION",
+                "SUBREGION",
+                secondary_group_name="B",
+            ),
+            pd.DataFrame(
+                [["Region 1", 0.333333], ["Region 2", 0.036]], columns=["REGION", "B"]
+            ),
+        )
+
+        documentation_df_copy = self.documentation_df.copy()
+        dis.exposure(
+            self.documentation_df, "A", "REGION", "SUBREGION", secondary_group_name="B"
+        )
+        pd.testing.assert_frame_equal(self.documentation_df, documentation_df_copy)
+
+        multiple_subregions_df_copy = self.multiple_subregions_df.copy()
+        dis.exposure(self.multiple_subregions_df, "A", "REGION", "SUBREGION")
+        pd.testing.assert_frame_equal(
+            self.multiple_subregions_df, multiple_subregions_df_copy
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
