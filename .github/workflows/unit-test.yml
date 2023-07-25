@@ -1,4 +1,9 @@
-name: coverage-report
+# Run unit tests every time a branch is pushed. This is the simplest
+# version of unit testing, just on a single platform.
+
+# Based on https://github.com/vengroff/censusdis/tree/main/.github/workflows
+
+name: unit-test
 
 on:
   push:
@@ -7,16 +12,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  unit-test:
     runs-on: ubuntu-latest
     steps:
       #----------------------------------------------
-      #       check-out repo and set-up python
+      #       check out repo
       #----------------------------------------------
       - name: Check out repository
         uses: actions/checkout@v3
-        with:
-          ssh-key: ${{secrets.DEPLOY_ACTION_SECRET}}
+      #----------------------------------------------
+      #       set up python
+      #----------------------------------------------
       - name: Set up python
         id: setup-python
         uses: actions/setup-python@v4
@@ -55,51 +61,18 @@ jobs:
       #----------------------------------------------
       #              run test suite
       #----------------------------------------------
-      - name: Run tests and coverage
+      - name: Run tests
+        id: runTests
         run: |
           source .venv/bin/activate
-          coverage run -m pytest --junitxml=reports/junit/junit.xml
+          python -m pytest
       #----------------------------------------------
-      #              generate coverage
+      #              archive test artifacts
       #----------------------------------------------
-      - name: Generate coverage reports and badges
-        run: |
-          source .venv/bin/activate
-          coverage report 
-          coverage xml -o ./reports/coverage/coverage.xml
-          coverage html -d ./reports/coverage 
-          genbadge coverage -n coverage -o ./reports/coverage/coverage-badge.svg
-          genbadge tests --name tests -i reports/junit/junit.xml -o ./reports/junit/tests-badge.svg
-      #----------------------------------------------
-      #              archive code coverage
-      #----------------------------------------------
-      - name: Archive code coverage
+      - name: Archive test artifacts
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: test_artifacts
           path: tests/_test_artifacts
           retention-days: 7
-      #----------------------------------------------
-      #              commit coverage
-      #----------------------------------------------
-      - name: Commit coverage reports and badge
-        run: |
-          /usr/bin/git config --local user.email "action@github.com"
-          /usr/bin/git config --local user.name "GitHub Action"
-          /usr/bin/git add ./reports/coverage/*.html
-          /usr/bin/git add ./reports/coverage/*.png
-          /usr/bin/git add ./reports/coverage/*.js
-          /usr/bin/git add ./reports/coverage/*.css
-          /usr/bin/git add ./reports/coverage/coverage-badge.svg
-          /usr/bin/git add ./reports/junit/tests-badge.svg
-          /usr/bin/git diff --staged --quiet || /usr/bin/git commit -m "Update badge(s) [github action]"
-          /usr/bin/git pull --rebase
-      - name: Query branch name
-        run: |
-          echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        id: query_branch
-      - name: Push coverage commit
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ steps.query_branch.outputs.branch }}
