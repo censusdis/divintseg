@@ -1,0 +1,48 @@
+# Run a matrix of tests across different platforms and python versions.
+# This is run on each pull request so we get a complete picture of any
+# platform-specific issues not caught earlier.
+
+# Based on https://github.com/vengroff/censusdis/tree/main/.github/workflows
+
+name: test-matrix
+
+on: [pull_request, workflow_dispatch]
+
+jobs:
+  test-matrix:
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+      fail-fast: false
+    defaults:
+      run:
+        shell: bash
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      - name: Load cached venv
+        id: cached-pip-wheels
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+      - name: Install library
+        run: poetry install --no-interaction
+      - name: Run tests
+        run: |
+          source $VENV
+          pytest
