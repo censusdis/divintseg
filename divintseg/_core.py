@@ -618,7 +618,9 @@ def bells(
     -------
         A dataframe with one row for each unique value of the `by`
         column indicating the Bell's Index of the `group_name` column
-        with respect to all of the other columns in the data frame.
+        with respect to all of the other columns in the data frame. If community
+        population consists exclusively of `group_name`, 1.0 will take place in
+        the dataframe cell corresponding to that region.
     """
     df_grouped = df_communities.groupby([by, over], as_index=False).sum(
         numeric_only=True
