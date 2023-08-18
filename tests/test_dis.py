@@ -607,6 +607,21 @@ class IsolationTestCase(unittest.TestCase):
             ],
             columns=["REGION", "SUBREGION", "S", "T"],
         )
+        self.no_segregation_df = pd.DataFrame(
+            [
+                ["Region", "Subregion A", 50, 50],
+                ["Region", "Subregion B", 50, 50],
+            ],
+            columns=["REGION", "SUBREGION", "S", "T"],
+        )
+        self.complete_segregation_df = pd.DataFrame(
+            [
+                ["Region 1", "Subregion A", 100, 0],
+                ["Region 1", "Subregion B", 0, 100],
+                ["Region 2", "Subregion A", 100, 0],
+            ],
+            columns=["REGION", "SUBREGION", "S", "T"],
+        )
         self.documentation_df = pd.DataFrame(
             [
                 ["Region 1", "Subregion A", 100, 0],
@@ -671,6 +686,16 @@ class IsolationTestCase(unittest.TestCase):
             dis.isolation(self.basic_df, "S", "REGION", "SUBREGION"),
             pd.DataFrame(
                 [["Region 1", 1.0], ["Region 2", 0.0]], columns=["REGION", "S"]
+            ),
+        )
+        pd.testing.assert_frame_equal(
+            dis.isolation(self.no_segregation_df, "S", "REGION", "SUBREGION"),
+            pd.DataFrame([["Region", 0.5]], columns=["REGION", "S"]),
+        )
+        pd.testing.assert_frame_equal(
+            dis.isolation(self.complete_segregation_df, "S", "REGION", "SUBREGION"),
+            pd.DataFrame(
+                [["Region 1", 1.0], ["Region 2", 1.0]], columns=["REGION", "S"]
             ),
         )
         pd.testing.assert_frame_equal(
@@ -739,6 +764,116 @@ class IsolationTestCase(unittest.TestCase):
         pd.testing.assert_frame_equal(
             self.many_regions_many_groups_df, many_regions_many_groups_df_copy
         )
+
+
+class BellsTestCase(unittest.TestCase):
+    def setUp(self) -> None:
+        self.no_segregation_df = pd.DataFrame(
+            [
+                ["Region", "Subregion A", 50, 50],
+                ["Region", "Subregion B", 50, 50],
+            ],
+            columns=["REGION", "SUBREGION", "S", "T"],
+        )
+        self.complete_segregation_df = pd.DataFrame(
+            [
+                ["Region 1", "Subregion A", 100, 0],
+                ["Region 1", "Subregion B", 0, 100],
+                ["Region 2", "Subregion A", 100, 0],
+            ],
+            columns=["REGION", "SUBREGION", "S", "T"],
+        )
+        self.single_subregion_df = pd.DataFrame(
+            [
+                ["Region 1", "Subregion A", 100, 0],
+                ["Region 1", "Subregion B", 50, 50],
+                ["Region 2", "Subregion C", 0, 100],
+                ["Region 2", "Subregion D", 0, 50],
+                ["Region 2", "Subregion E", 10, 90],
+            ],
+            columns=["REGION", "SUBREGION", "S", "T"],
+        )
+        self.multiple_subregions_df = pd.DataFrame(
+            [
+                ["Region 1", "Subregion A", 25, 0],
+                ["Region 1", "Subregion A", 25, 0],
+                ["Region 1", "Subregion A", 25, 0],
+                ["Region 1", "Subregion A", 25, 0],
+                ["Region 1", "Subregion B", 50, 0],
+                ["Region 1", "Subregion B", 0, 50],
+                ["Region 2", "Subregion C", 0, 100],
+                ["Region 2", "Subregion D", 0, 50],
+                ["Region 2", "Subregion E", 10, 0],
+                ["Region 2", "Subregion E", 0, 90],
+            ],
+            columns=["REGION", "SUBREGION", "S", "T"],
+        )
+        self.diff_regions_same_subregions_df = pd.DataFrame(
+            [
+                ["Region 1", "Subregion A", 100, 0],
+                ["Region 1", "Subregion B", 50, 50],
+                ["Region 2", "Subregion B", 0, 100],
+                ["Region 2", "Subregion C", 0, 50],
+                ["Region 2", "Subregion D", 10, 0],
+                ["Region 2", "Subregion D", 0, 90],
+            ],
+            columns=["REGION", "SUBREGION", "S", "T"],
+        )
+        self.states_counties_df = pd.DataFrame(
+            [
+                ["California", "001", 100, 0],
+                ["California", "002", 80, 20],
+                ["California", "003", 60, 40],
+                ["New York", "001", 40, 60],
+                ["New York", "002", 80, 20],
+                ["New York", "003", 60, 40],
+            ],
+            columns=["STATE", "COUNTY", "A", "B"],
+        )
+
+    def test_bells(self):
+        pd.testing.assert_frame_equal(
+            dis.bells(self.no_segregation_df, "S", "REGION", "SUBREGION"),
+            pd.DataFrame([["Region", 0.0]], columns=["REGION", "S"]),
+        )
+        pd.testing.assert_frame_equal(
+            dis.bells(self.complete_segregation_df, "S", "REGION", "SUBREGION"),
+            pd.DataFrame(
+                [["Region 1", 1.0], ["Region 2", 1.0]],
+                columns=["REGION", "S"],
+            ),
+        )
+
+        pd.testing.assert_frame_equal(
+            dis.bells(self.single_subregion_df, "S", "REGION", "SUBREGION"),
+            pd.DataFrame(
+                [["Region 1", 0.33333], ["Region 2", 0.0625]], columns=["REGION", "S"]
+            ),
+        )
+        pd.testing.assert_frame_equal(
+            dis.bells(self.single_subregion_df, "S", "REGION", "SUBREGION"),
+            dis.bells(self.multiple_subregions_df, "S", "REGION", "SUBREGION"),
+        )
+        pd.testing.assert_frame_equal(
+            dis.bells(self.single_subregion_df, "S", "REGION", "SUBREGION"),
+            dis.bells(self.diff_regions_same_subregions_df, "S", "REGION", "SUBREGION"),
+        )
+        pd.testing.assert_frame_equal(
+            dis.bells(self.states_counties_df, "A", "STATE", "COUNTY"),
+            pd.DataFrame(
+                [["California", 0.166666], ["New York", 0.111111]],
+                columns=["STATE", "A"],
+            ),
+        )
+        single_subregion_df_copy = self.single_subregion_df.copy()
+        dis.bells(self.single_subregion_df, "S", "REGION", "SUBREGION")
+        pd.testing.assert_frame_equal(
+            self.single_subregion_df, single_subregion_df_copy
+        )
+
+        states_counties_df_copy = self.states_counties_df.copy()
+        dis.bells(self.states_counties_df, "A", "STATE", "COUNTY")
+        pd.testing.assert_frame_equal(self.states_counties_df, states_counties_df_copy)
 
 
 class ExposureTestCase(unittest.TestCase):

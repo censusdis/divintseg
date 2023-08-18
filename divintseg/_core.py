@@ -589,6 +589,59 @@ def isolation(
     return final_df
 
 
+def bells(
+    df_communities: pd.DataFrame,
+    group_name: str,
+    by: str,
+    over: str,
+) -> pd.DataFrame:
+    """
+    Computes the isolation of a group using the isolation index by Wendell Bell.
+
+    Parameters
+    ----------
+    df_communities
+        A :py:class:`pd.DataFrame` of communities.
+    group_name
+        The name of the group (name of a column in `df_communities`)
+        whose isolation we wish to compute.
+    by
+        The column or index to group by in order to
+        partition the rows into communities.
+    over
+        The column to group by in order to partition
+        the rows of each community into smaller
+        aggregation units where the base diversity will
+        be computed.
+
+    Returns
+    -------
+        A dataframe with one row for each unique value of the `by`
+        column indicating the Bell's Index of the `group_name` column
+        with respect to all of the other columns in the data frame. If community
+        population consists exclusively of `group_name`, 1.0 will take place in
+        the dataframe cell corresponding to that region.
+    """
+    df_grouped = df_communities.groupby([by, over], as_index=False).sum(
+        numeric_only=True
+    )
+    group_pop = df_grouped.groupby(by, as_index=False).sum(numeric_only=True)[
+        group_name
+    ]
+    region_pop = (
+        df_grouped.groupby(by, as_index=False)
+        .sum(numeric_only=True)
+        .sum(numeric_only=True, axis=1)
+    )
+    px = group_pop / region_pop  # proportion of sample made of group_name
+    pxx = isolation(
+        df_communities, group_name, by, over
+    )  # minimum probable interaction within group
+    pxx[group_name] = (pxx[group_name] - px) / (1 - px)
+    # NaN if px=1, happens when subgroup population consists only of group_name
+    return pxx.fillna(1)
+
+
 def exposure(
     df_communities: pd.DataFrame,
     primary_group_name: str,
